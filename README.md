@@ -1,1 +1,0 @@
-sono bello, tu no
