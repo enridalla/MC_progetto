@@ -1,53 +1,104 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import MenuList from './views/menuList'; 
-import OrderStatus from './views/orderStatus'; 
-import Profile from './views/profile'; 
-
-const Tab = createBottomTabNavigator();
+import MenuList from './views/menuList';
+import OrderStatus from './views/orderStatus';
+import Profile from './views/profile';
 
 const App = () => {
-  const [currentPage, setCurrentPage] = useState('menu');
+  const [currentPage, setCurrentPage] = useState('menu'); // Stato per gestire la pagina corrente
 
+  // Funzione per cambiare la pagina
   const changePage = (page) => {
-    setCurrentPage(page);  
+    setCurrentPage(page);
+  };
+
+  // Renderizza la pagina attuale in base allo stato
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'menu':
+        return <MenuList />;
+      case 'order':
+        return <OrderStatus />;
+      case 'profile':
+        return <Profile />;
+      default:
+        return <MenuList />;
+    }
   };
 
   return (
     <PaperProvider>
-      <NavigationContainer>
-        <View style={{ flex: 1 }}>
-          {currentPage === "menu" && (
-            <Tab.Navigator
-              screenOptions={({ route }) => ({
-                tabBarIcon: ({ color, size }) => {
-                  let iconName;
-                  if (route.name === 'Menù') {
-                    iconName = 'food';
-                  } else if (route.name === 'Ordine') {
-                    iconName = 'truck-delivery';
-                  } else if (route.name === 'Profilo') {
-                    iconName = 'account';
-                  }
-                  return <Icon name={iconName} color={color} size={size} />;
-                },
-                tabBarActiveTintColor: '#6200ee',
-                tabBarInactiveTintColor: 'gray',
-              })}
-            >
-              <Tab.Screen name="Menù" component={MenuList} />
-              <Tab.Screen name="Ordine" component={OrderStatus} />
-              <Tab.Screen name="Profilo" component={Profile} />
-            </Tab.Navigator>
-          )}
+      <View style={{ flex: 1 }}>
+        {/* Contenuto della pagina */}
+        <View style={styles.pageContainer}>
+          {renderPage()}
         </View>
-      </NavigationContainer>
+
+        {/* Barra di navigazione con tab */}
+        <View style={styles.tabBar}>
+          <TouchableOpacity
+            style={[styles.tab, currentPage === 'menu' && styles.activeTab]}
+            onPress={() => changePage('menu')}
+          >
+            <Icon name="food" color={currentPage === 'menu' ? '#6200ee' : 'gray'} size={24} />
+            <Text style={[styles.tabText, currentPage === 'menu' && styles.activeText]}>Menù</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, currentPage === 'order' && styles.activeTab]}
+            onPress={() => changePage('order')}
+          >
+            <Icon name="truck-delivery" color={currentPage === 'order' ? '#6200ee' : 'gray'} size={24} />
+            <Text style={[styles.tabText, currentPage === 'order' && styles.activeText]}>Ordine</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, currentPage === 'profile' && styles.activeTab]}
+            onPress={() => changePage('profile')}
+          >
+            <Icon name="account" color={currentPage === 'profile' ? '#6200ee' : 'gray'} size={24} />
+            <Text style={[styles.tabText, currentPage === 'profile' && styles.activeText]}>Profilo</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </PaperProvider>
   );
 };
+
+const styles = StyleSheet.create({
+  tabBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    paddingVertical: 10,
+    backgroundColor: '#f1f1f1',
+    position: 'absolute', // Posiziona la tabBar in basso
+    bottom: 0, // Ancorata al fondo
+    left: 0,
+    right: 0,
+    borderTopWidth: 1, // Separazione dalla pagina
+    borderTopColor: '#ddd',
+  },
+  tab: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
+  },
+  activeTab: {
+    borderBottomWidth: 2,
+    borderBottomColor: '#6200ee',
+  },
+  activeText: {
+    color: '#6200ee',
+  },
+  tabText: {
+    color: 'gray',
+    fontSize: 14,
+  },
+  pageContainer: {
+    flex: 1,
+    padding: 10,
+    paddingBottom: 60, // Spazio per la barra delle tab
+  },
+});
 
 export default App;
