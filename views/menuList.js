@@ -1,18 +1,23 @@
+// /components/MenuList.js
 import React from 'react';
-import { FlatList, StyleSheet, View, SafeAreaView } from 'react-native';
+import { FlatList, StyleSheet, View, SafeAreaView, Text, ActivityIndicator } from 'react-native';
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import useMenuViewModel from '../viewmodels/menuViewModel';
 
 const MenuList = ({ onMenuSelect }) => {
-  const { menus } = useMenuViewModel();
+  const { menus, loading } = useMenuViewModel();
 
   const renderItem = ({ item }) => (
     <Card style={styles.card}>
-      <Card.Cover source={{ uri: item.image }} />
+      {item.image ? (
+        <Card.Cover source={{ uri: `data:image/jpeg;base64,${item.image}` }} />
+      ) : (
+        <View style={styles.noImage}><Text>No Image Available</Text></View>
+      )}
       <Card.Content>
         <Title>{item.name}</Title>
         <Paragraph>{item.description}</Paragraph>
-        <Paragraph>Prezzo: {item.price}</Paragraph>
+        <Paragraph>Prezzo: {item.price} €</Paragraph>
         <Paragraph>Consegna: {item.deliveryTime}</Paragraph>
       </Card.Content>
       <Card.Actions>
@@ -23,12 +28,21 @@ const MenuList = ({ onMenuSelect }) => {
     </Card>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.safeArea}>
+        <ActivityIndicator size="large" color="#FF7300" /> {/* Mostra un indicatore di caricamento */}
+        <Text>Caricamento in corso...</Text>
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <FlatList
         data={menus}
         renderItem={renderItem}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item) => item.mid.toString()} // Usa 'mid' come identificatore unico
       />
     </SafeAreaView>
   );
@@ -41,6 +55,12 @@ const styles = StyleSheet.create({
   },
   card: {
     marginBottom: 10,
+  },
+  noImage: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ddd',
   },
 });
 
