@@ -1,6 +1,5 @@
-// /views/MenuList.js
 import React from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, StyleSheet, View, SafeAreaView } from 'react-native';
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import useMenuViewModel from '../viewmodels/menuViewModel';
 
@@ -25,20 +24,19 @@ const MenuList = ({ onMenuSelect }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.safeArea}>
       <FlatList
         data={menus}
         renderItem={renderItem}
         keyExtractor={(item) => item.id}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    padding: 10,
     backgroundColor: '#f5f5f5',
   },
   card: {
