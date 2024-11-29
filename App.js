@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, SafeAreaView } from 'react-native';
 import { PaperProvider } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MenuList from './views/menuList';
@@ -30,7 +30,7 @@ const App = () => {
 
   return (
     <PaperProvider>
-      <View style={{ flex: 1 }}>
+      <SafeAreaView style={styles.safeAreaView}>
         {/* Contenuto della pagina */}
         <View style={styles.pageContainer}>
           {renderPage()}
@@ -60,12 +60,20 @@ const App = () => {
             <Text style={[styles.tabText, currentPage === 'profile' && styles.activeText]}>Profilo</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </SafeAreaView>
     </PaperProvider>
   );
 };
 
 const styles = StyleSheet.create({
+  safeAreaView: {
+    flex: 1,
+    // Rimuoviamo ogni padding extra che potrebbe spingere il contenuto in alto
+  },
+  pageContainer: {
+    flex: 1,
+    paddingBottom: 60, // Spazio per la barra delle tab
+  },
   tabBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -93,11 +101,6 @@ const styles = StyleSheet.create({
   tabText: {
     color: 'gray',
     fontSize: 14,
-  },
-  pageContainer: {
-    flex: 1,
-    padding: 10,
-    paddingBottom: 60, // Spazio per la barra delle tab
   },
 });
 

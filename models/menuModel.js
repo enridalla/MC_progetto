@@ -33,9 +33,9 @@ const fetchMenuImage = async (menuId) => {
     }
 
     const imageUrl = await response.json();
-    console.log(`[fetchMenuImage] Image URL received for menuId ${menuId}: ${imageUrl.image}`);
+    //console.log(`[fetchMenuImage] Image URL received for menuId ${menuId}: ${imageUrl.base64}`);
 
-    return imageUrl.image; // Assuming the response contains the image URL under the "image" field (base64)
+    return imageUrl.base64; // Return the base64 image data
 
   } catch (error) {
     console.error('[fetchMenuImage] Error during image fetch:', error);
@@ -93,7 +93,7 @@ export const fetchMenus = async () => {
 
       // Return the updated menu with image and location data
       return {
-        ...menu,
+        ...menu, // Spread the existing menu data
         image: menuImage || 'default-image-url', // Use a default image or null if no image fetched
         location: {
           lat: HARD_CODED_LATITUDE,
