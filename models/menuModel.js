@@ -18,7 +18,7 @@ const fetchMenuImage = async (menuId) => {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${sid}`
+        'Authorization': `Bearer ${sid}`,
       },
     });
 
@@ -89,6 +89,59 @@ export const fetchMenus = async () => {
 
   } catch (error) {
     console.error('[fetchMenus] Error during menu fetch or image fetch:', error);
+    throw error; // Re-throw to be handled by the calling function
+  }
+};
+
+// Function to fetch details of a specific menu (with image)
+export const fetchMenuDetails = async (menuId) => {
+  try {
+    if (!menuId) {
+      throw new Error('Menu ID non valido');
+    }
+
+    console.log(`[fetchMenuDetails] Fetching details for menuId: ${menuId}`);
+
+    // Use hardcoded latitude and longitude
+    const latitude = HARD_CODED_LATITUDE;
+    const longitude = HARD_CODED_LONGITUDE;
+
+    // Fetch the menu details
+    const response = await fetch(`${BASE_URL}/menu/${menuId}?lat=${latitude}&lng=${longitude}&sid=${sid}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    console.log(`[fetchMenuDetails] Response status for menuId ${menuId}: ${response.status}`);
+
+    if (!response.ok) {
+      const data = await response.json();
+      console.error('[fetchMenuDetails] Errore durante il fetch dei dettagli:', data);
+      throw new Error(data.error || 'Errore durante il fetch dei dettagli del menu');
+    }
+
+    // Parse the response data
+    const menuDetails = await response.json();
+
+    // Fetch the menu image
+    let menuImage = null;
+    try {
+      menuImage = await fetchMenuImage(menuId); // Fetch image for the menu
+    } catch (error) {
+      console.error(`[fetchMenuDetails] Failed to fetch image for menuId ${menuId}:`, error);
+    }
+
+    // Add the image to the menu details
+    const updatedMenuDetails = {
+      ...menuDetails,
+      image: menuImage || 'default-image-url', // Use a default image if no image is fetched
+    };
+
+    return updatedMenuDetails;
+  } catch (error) {
+    console.error('[fetchMenuDetails] Errore durante il fetch dei dettagli del menu:', error);
     throw error; // Re-throw to be handled by the calling function
   }
 };

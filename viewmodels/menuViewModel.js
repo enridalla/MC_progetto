@@ -1,26 +1,26 @@
-// /viewmodels/menuViewModel.js
 import { useState, useEffect } from 'react';
 import { fetchMenus } from '../models/menuModel';
 
 const useMenuViewModel = () => {
   const [menus, setMenus] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     (async () => {
       try {
-        const loadedMenus = await fetchMenus(); 
-        setMenus(loadedMenus);
-      } catch (error) {
-        console.error('Errore nel caricamento dei menù:', error);
+        setLoading(true);
+        const data = await fetchMenus();
+        setMenus(data);
+      } catch (err) {
+        setError(err.message || 'Errore durante il caricamento dei menù');
+      } finally {
+        setLoading(false);
       }
     })();
   }, []);
 
-  const handleMenuSelect = (menu) => {
-    console.log(`Menu selezionato: ${menu.name}`);
-  };
-
-  return { menus, handleMenuSelect };
+  return { menus, loading, error };
 };
 
 export default useMenuViewModel;

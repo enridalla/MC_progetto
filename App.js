@@ -13,7 +13,7 @@ const App = () => {
   const renderPage = () => {
     switch (currentPage) {
       case 'menu':
-        return <MenuList />;
+        return <MenuList onChangePage={setCurrentPage} />;
       case 'order':
         return <OrderStatus />;
       case 'profile':
@@ -26,12 +26,9 @@ const App = () => {
   return (
     <PaperProvider>
       <SafeAreaView style={styles.safeAreaView}>
-        {/* Contenuto della pagina */}
         <View style={styles.pageContainer}>
           {renderPage()}
         </View>
-
-        {/* Barra di navigazione */}
         <BottomNavigation currentPage={currentPage} onChangePage={setCurrentPage} />
       </SafeAreaView>
     </PaperProvider>
@@ -44,7 +41,7 @@ const styles = StyleSheet.create({
   },
   pageContainer: {
     flex: 1,
-    paddingBottom: 60, // Spazio per la barra delle tab
+    paddingBottom: 60,
   },
 });
 
