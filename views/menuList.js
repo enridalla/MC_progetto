@@ -1,11 +1,11 @@
 // /components/MenuList.js
 import React from 'react';
-import { FlatList, StyleSheet, View, SafeAreaView, Text, ActivityIndicator } from 'react-native';
+import { FlatList, StyleSheet, View, SafeAreaView, Text } from 'react-native';
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import useMenuViewModel from '../viewmodels/menuViewModel';
 
-const MenuList = ({ onMenuSelect }) => {
-  const { menus, loading } = useMenuViewModel();
+const MenuList = () => {
+  const { menus, handleMenuSelect } = useMenuViewModel(); // Recupera i menù e la funzione di selezione
 
   const renderItem = ({ item }) => (
     <Card style={styles.card}>
@@ -21,29 +21,26 @@ const MenuList = ({ onMenuSelect }) => {
         <Paragraph>Consegna: {item.deliveryTime}</Paragraph>
       </Card.Content>
       <Card.Actions>
-        <Button mode="contained" onPress={() => onMenuSelect(item)}>
+        <Button mode="contained" onPress={() => handleMenuSelect(item)}>
           Acquista
         </Button>
       </Card.Actions>
     </Card>
   );
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.safeArea}>
-        <ActivityIndicator size="large" color="#FF7300" /> {/* Mostra un indicatore di caricamento */}
-        <Text>Caricamento in corso...</Text>
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.safeArea}>
-      <FlatList
-        data={menus}
-        renderItem={renderItem}
-        keyExtractor={(item) => item.mid.toString()} // Usa 'mid' come identificatore unico
-      />
+      {menus.length === 0 ? ( // Controlla se ci sono menù
+        <View style={styles.noData}>
+          <Text>Nessun menù disponibile al momento.</Text>
+        </View>
+      ) : (
+        <FlatList
+          data={menus}
+          renderItem={renderItem}
+          keyExtractor={(item) => item.mid.toString()} // Usa 'mid' come identificatore unico
+        />
+      )}
     </SafeAreaView>
   );
 };
@@ -61,6 +58,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#ddd',
+  },
+  noData: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

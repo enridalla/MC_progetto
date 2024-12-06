@@ -14,17 +14,13 @@ const fetchMenuImage = async (menuId) => {
       throw new Error('Invalid menu ID');
     }
 
-    console.log(`[fetchMenuImage] Fetching image for menuId: ${menuId}`);
-
     const response = await fetch(`${BASE_URL}/menu/${menuId}/image?sid=${sid}`, {
       method: 'GET',
       headers: {
-        'Content-Type': 'application/json', 
+        'Content-Type': 'application/json',
         'Authorization': `Bearer ${sid}`
       },
     });
-
-    console.log(`[fetchMenuImage] Response status for menuId ${menuId}: ${response.status}`);
 
     if (!response.ok) {
       const data = await response.json();
@@ -33,8 +29,6 @@ const fetchMenuImage = async (menuId) => {
     }
 
     const imageUrl = await response.json();
-    //console.log(`[fetchMenuImage] Image URL received for menuId ${menuId}: ${imageUrl.base64}`);
-
     return imageUrl.base64; // Return the base64 image data
 
   } catch (error) {
@@ -46,26 +40,19 @@ const fetchMenuImage = async (menuId) => {
 // Function to fetch menus based on hardcoded latitude and longitude
 export const fetchMenus = async () => {
   try {
-    // Use the hardcoded latitude and longitude
     const latitude = HARD_CODED_LATITUDE;
     const longitude = HARD_CODED_LONGITUDE;
-
-    console.log(`[fetchMenus] Fetching menus for latitude: ${latitude}, longitude: ${longitude}`);
 
     if (!latitude || !longitude) {
       throw new Error('Invalid latitude or longitude');
     }
 
-    // Fetch the menus based on hardcoded latitude and longitude from the API
-    console.log(`[fetchMenus] Making request to: ${BASE_URL}/menu?lat=${latitude}&lng=${longitude}&sid=${sid}`);
     const response = await fetch(`${BASE_URL}/menu?lat=${latitude}&lng=${longitude}&sid=${sid}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
     });
-
-    console.log(`[fetchMenus] Response status for menus: ${response.status}`);
 
     if (!response.ok) {
       const data = await response.json();
@@ -74,13 +61,10 @@ export const fetchMenus = async () => {
     }
 
     const menus = await response.json();
-    console.log('[fetchMenus] Menus data received:', menus);
 
-    // For each menu, fetch the image URL and add other details
+    // Fetch images for each menu and add other details
     const updatedMenus = await Promise.all(menus.map(async (menu) => {
-      const menuId = menu.mid; // Ensure we are accessing the "mid" correctly
-      console.log(`[fetchMenus] Fetching image for menuId: ${menuId}`);
-
+      const menuId = menu.mid;
       let menuImage = null;
 
       if (menuId) {
@@ -91,9 +75,8 @@ export const fetchMenus = async () => {
         }
       }
 
-      // Return the updated menu with image and location data
       return {
-        ...menu, // Spread the existing menu data
+        ...menu,
         image: menuImage || 'default-image-url', // Use a default image or null if no image fetched
         location: {
           lat: HARD_CODED_LATITUDE,
@@ -102,8 +85,6 @@ export const fetchMenus = async () => {
       };
     }));
 
-    // Returning the menus data with images and hardcoded location
-    console.log('[fetchMenus] Updated menus with images:', updatedMenus);
     return updatedMenus;
 
   } catch (error) {

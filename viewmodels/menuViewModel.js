@@ -4,24 +4,23 @@ import { fetchMenus } from '../models/menuModel';
 
 const useMenuViewModel = () => {
   const [menus, setMenus] = useState([]);
-  const [loading, setLoading] = useState(true); // Per gestire lo stato di caricamento
 
   useEffect(() => {
-    const loadMenus = async () => {
+    (async () => {
       try {
-        const loadedMenus = await fetchMenus(); // Carica i menù dal model (asincrono)
+        const loadedMenus = await fetchMenus(); 
         setMenus(loadedMenus);
       } catch (error) {
         console.error('Errore nel caricamento dei menù:', error);
-      } finally {
-        setLoading(false); // Finito il caricamento
       }
-    };
+    })();
+  }, []);
 
-    loadMenus();
-  }, []); // L'effetto viene eseguito solo al primo rendering del componente
+  const handleMenuSelect = (menu) => {
+    console.log(`Menu selezionato: ${menu.name}`);
+  };
 
-  return { menus, loading };
+  return { menus, handleMenuSelect };
 };
 
 export default useMenuViewModel;
