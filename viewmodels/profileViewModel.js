@@ -1,14 +1,25 @@
 // /viewmodels/profileViewModel.js
-import { useState } from 'react';
+import { useState, setPage } from 'react';
 
 const useProfileViewModel = () => {
   const [userData, setUserData] = useState({
-    name: 'Mario Rossi',
-    email: 'mario@example.com',
+    nome: 'Mario',
+    cognome: 'Rossi',
+    intestatario: 'Mario Rossi',
+    numero: '1234567812345678',
+    scadenza: '12/23', //da castare ad intero dividendo mese e anno
+    cvv: '123',
+    uid: 0,
+    lastOid: 0,
+    orderStatus: 'ON_DELIVERY',
   });
 
+  const [page, setPage] = useState(false);
+
   const updateUserInfo = (newData) => {
+    // Aggiorna i dati utente con i nuovi dati
     setUserData({ ...userData, ...newData });
+
   };
 
   return {
