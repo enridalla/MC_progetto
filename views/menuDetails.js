@@ -2,9 +2,9 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { Button } from 'react-native-paper';
 import useMenuDetailsViewModel from '../viewmodels/menuDetailsViewModel';
-import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-const MenuDetails = ({ menuId, onBack, onOrder }) => {
+const MenuDetails = ({ route, navigation }) => {
+  const { menuId } = route.params;
   const { menuDetails, loading, error } = useMenuDetailsViewModel(menuId);
 
   if (loading) {
@@ -41,19 +41,15 @@ const MenuDetails = ({ menuId, onBack, onOrder }) => {
       ) : (
         <View style={styles.noImage}><Text style={styles.noImageText}>No Image Available</Text></View>
       )}
-      <View style={styles.deliveryContainer}>
-        <MaterialCommunityIcons name="truck-fast" size={24} color="#FF7300" />
-        <Text style={styles.deliveryTime}>Consegna: {menuDetails.deliveryTime} minuti</Text>
-      </View>
       <Text style={styles.title}>{menuDetails.name}</Text>
       <Text style={styles.price}>Prezzo: {menuDetails.price} €</Text>
       <Text style={styles.longDescription}>{menuDetails.longDescription}</Text>
       
-      <Button mode="contained" onPress={onOrder} style={[styles.button, styles.orderButton]}>
+      <Button mode="contained" onPress={() => alert('Ordine effettuato!')} style={styles.button}>
         Ordina Ora
       </Button>
       
-      <Button mode="outlined" onPress={onBack} style={styles.button}>
+      <Button mode="outlined" onPress={() => navigation.goBack()} style={styles.button}>
         Torna Indietro
       </Button>
     </ScrollView>
@@ -101,24 +97,9 @@ const styles = StyleSheet.create({
     color: '#555',
     fontStyle: 'italic',
   },
-  deliveryContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 16,
-    marginTop: 12,
-  },
-  deliveryTime: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#FF7300',
-    marginLeft: 8,
-  },
   button: {
     borderRadius: 8,
     marginTop: 20,
-  },
-  orderButton: {
-    backgroundColor: '#FF7300',
   },
   loading: {
     flex: 1,

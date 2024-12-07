@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { FlatList, StyleSheet, View, SafeAreaView, Text } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
-import useMenuViewModel from '../viewmodels/menuViewModel';
-import MenuDetails from './menuDetails';
+import useMenuViewModel from '../viewmodels/menuListViewModel';
 
-const MenuList = ({ onChangePage }) => {
+const MenuList = ({ navigation }) => {
   const { menus, loading, error } = useMenuViewModel();
-  const [selectedMenu, setSelectedMenu] = useState(null);
 
   if (loading) {
     return (
@@ -27,13 +25,13 @@ const MenuList = ({ onChangePage }) => {
   const renderItem = ({ item }) => (
     <Card
       style={styles.card}
-      onPress={() => setSelectedMenu(item.mid)} // Aggiungi questa riga per navigare ai dettagli
+      onPress={() => navigation.navigate('MenuDetails', { menuId: item.mid })}
     >
       {item.image ? (
         <Card.Cover
           source={{ uri: `data:image/jpeg;base64,${item.image}` }}
           style={styles.cardImage}
-          resizeMode="cover" // Assicurati che l'immagine riempia correttamente
+          resizeMode="cover"
         />
       ) : (
         <View style={styles.noImage}><Text style={styles.noImageText}>No Image Available</Text></View>
@@ -46,18 +44,6 @@ const MenuList = ({ onChangePage }) => {
       </Card.Content>
     </Card>
   );
-
-  if (selectedMenu) {
-    return (
-      <MenuDetails
-        menuId={selectedMenu}
-        onBack={() => {
-          setSelectedMenu(null);
-          onChangePage('menu');
-        }}
-      />
-    );
-  }
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -78,16 +64,12 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     borderRadius: 12,
     backgroundColor: '#fff',
-    elevation: 5,  // Shadow effect for iOS
-    shadowColor: '#000', // Shadow effect for Android
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
+    elevation: 5,
   },
   cardImage: {
-    height: 200, // Imposta l'altezza dell'immagine
-    borderRadius: 8, // Angoli arrotondati per l'immagine
-    marginBottom: 8, // Riduci la distanza tra l'immagine e gli altri elementi
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 8,
   },
   cardTitle: {
     fontSize: 18,
@@ -110,34 +92,34 @@ const styles = StyleSheet.create({
     color: '#888',
     marginBottom: 12,
   },
-  noImage: { 
-    height: 200, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    backgroundColor: '#ddd', 
+  noImage: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ddd',
     borderRadius: 8,
   },
-  noImageText: { 
-    color: '#555', 
+  noImageText: {
+    color: '#555',
     fontStyle: 'italic',
   },
-  loading: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+  loading: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  loadingText: { 
-    fontSize: 16, 
-    fontWeight: '600', 
+  loadingText: {
+    fontSize: 16,
+    fontWeight: '600',
   },
-  error: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
+  error: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  errorText: { 
-    fontSize: 16, 
-    color: 'red', 
+  errorText: {
+    fontSize: 16,
+    color: 'red',
     fontWeight: '600',
   },
 });
