@@ -7,7 +7,8 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MenuList from './views/menuList';
 import MenuDetails from './views/menuDetails';
 import OrderStatus from './views/orderStatus';
-import Profile from './views/profile';
+import ProfileInfo from './views/profileInfo';
+import ProfileEdit from './views/profileEdit';
 
 // Stack Navigator per il menù
 const MenuStack = createNativeStackNavigator();
@@ -17,6 +18,16 @@ const MenuStackScreen = () => (
     <MenuStack.Screen name="MenuList" component={MenuList} options={{ title: 'Menù' }} />
     <MenuStack.Screen name="MenuDetails" component={MenuDetails} options={{ title: 'Dettagli Menù' }} />
   </MenuStack.Navigator>
+);
+
+// Stack Navigator per il profilo
+const ProfileStack = createNativeStackNavigator();
+
+const ProfileStackScreen = () => (
+  <ProfileStack.Navigator>
+    <ProfileStack.Screen name="ProfileInfo" component={ProfileInfo} options={{ title: 'Profilo' }} />
+    <ProfileStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ title: 'Modifica Profilo' }} />
+  </ProfileStack.Navigator>
 );
 
 // Tab Navigator
@@ -46,7 +57,7 @@ const App = () => {
       >
         <Tab.Screen name="Menu" component={MenuStackScreen} options={{ headerShown: false }} />
         <Tab.Screen name="Order" component={OrderStatus} options={{ title: 'Stato Ordine' }} />
-        <Tab.Screen name="Profile" component={Profile} options={{ title: 'Profilo' }} />
+        <Tab.Screen name="Profile" component={ProfileStackScreen} options={{ headerShown: false }} />
       </Tab.Navigator>
     </NavigationContainer>
   );

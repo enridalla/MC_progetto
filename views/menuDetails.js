@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   error: {
-    flex: 1,
+    flex:1,
     justifyContent: 'center',
     alignItems: 'center',
   },
