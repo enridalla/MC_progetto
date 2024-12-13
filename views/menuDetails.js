@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
 import { Button } from 'react-native-paper';
-import useMenuDetailsViewModel from '../viewmodels/menuDetailsViewModel';
+import useMenuDetailsViewModel from '../viewmodels/menuViewModel';
 
 const MenuDetails = ({ route, navigation }) => {
   const { menuId } = route.params;

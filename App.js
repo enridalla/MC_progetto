@@ -24,7 +24,7 @@ const MenuStackScreen = () => (
 const ProfileStack = createNativeStackNavigator();
 
 const ProfileStackScreen = () => (
-  <ProfileStack.Navigator>
+  <ProfileStack.Navigator detachInactiveScreens={false}>
     <ProfileStack.Screen name="ProfileInfo" component={ProfileInfo} options={{ title: 'Profilo' }} />
     <ProfileStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ title: 'Modifica Profilo' }} />
   </ProfileStack.Navigator>

@@ -3,8 +3,8 @@ const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425';
 const SID = '0EVb5bQModsCTtHFOWPzuZHelLAIcKA1cVGs411iHvbnKg90HU0cRxQoa6U9GkCd';
 
 export const getUserData = async (uid) => {
+  uid = 36228; // ID utente DA TOGLIERE
     try {
-      console.log(`Fetching user data for UID: ${uid}`);
       const response = await fetch(`${BASE_URL}/user/${uid}?sid=${SID}`, {
         method: 'GET',
         headers: {
@@ -19,7 +19,6 @@ export const getUserData = async (uid) => {
       }
   
       const data = await response.json();
-      console.log('Data fetched successfully:', data);
       return data;
     } catch (error) {
       console.error('Error fetching user data:', error);
@@ -28,13 +27,15 @@ export const getUserData = async (uid) => {
   };
 
   export const saveUserData = async (uid, data) => {
+     uid = 36228; // ID utente DA TOGLIERE
+
     try {
       console.log(`Saving user data for UID: ${uid}`);
       
       // Include SID in the data body if needed
       const updatedData = {
         ...data,
-        sid: SID, // Add the SID here to be included in the body
+        sid: SID, 
       };
     
       console.log('Data to save:', updatedData);
@@ -42,14 +43,14 @@ export const getUserData = async (uid) => {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Accept': '*/*',  // Corretto come nel test cURL
+          'Accept': '*/*',  
         },
-        body: JSON.stringify(updatedData), // Use updatedData with SID
+        body: JSON.stringify(updatedData), 
       });
     
       if (!response.ok) {
         console.log(`Response not OK, status: ${response.status}`);
-        const errorData = await response.text(); // Usa .text() per ottenere tutto il corpo
+        const errorData = await response.text(); 
         console.log('Errore dettagliato:', errorData);
         throw new Error(errorData || `Failed to save user data, status: ${response.status}`);
     }
@@ -63,3 +64,4 @@ export const getUserData = async (uid) => {
 
   
   
+console.log

@@ -3,19 +3,13 @@ import { getUserData, saveUserData } from '../models/profileModel';
 
 const useProfileViewModel = (uid) => {
   const [userData, setUserData] = useState(null);
-  const [formData, setFormData] = useState(null); // Serve per salvare quando l'utente modifica i dati parzialmente nel form
+  const [formData, setFormData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const uid = 36228; // ID utente DA TOGLIERE
-
-    if (!uid) {
-      console.error('UID is missing. Fetch aborted.');
-      return;
-    }
-  
     const loadUserData = async () => {
+      console.log('Loading user data...');
       try {
         setLoading(true);
         const data = await getUserData(uid);
@@ -28,10 +22,13 @@ const useProfileViewModel = (uid) => {
         setLoading(false);
       }
     };
-  
-    loadUserData();
-  }, [uid]);
-  
+
+    loadUserData()
+  }, []);
+
+  useEffect(() => {
+    console.log('User data changed');
+  }, [userData]);  
 
   // Metodo per aggiornare i campi del form
   const updateField = (field, value) => {
@@ -42,20 +39,28 @@ const useProfileViewModel = (uid) => {
   };
 
   // Metodo per salvare le modifiche ai dati dell'utente
-  const saveChanges = () => {
-    const uid = 36228; // ID utente DA TOGLIERE
+  const saveChanges = async () => {
+    const uid = 36228; 
 
-    const updatedUserData = {
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      cardFullName: `${formData.firstName} ${formData.lastName}`,
-      cardNumber: formData.cardNumber,
-      cardExpireMonth: parseInt(formData.cardExpireMonth, 10),  // Converti a intero
-      cardExpireYear: parseInt(formData.cardExpireYear, 10),    // Converti a intero
-      cardCVV: formData.cardCVV,
-    };
-    saveUserData(uid, updatedUserData);
-    console.log('Dati salvati:', updatedUserData);
+    try {
+      const updatedUserData = {
+        ...formData,
+        cardFullName: `${formData.firstName} ${formData.lastName}`,
+        cardExpireMonth: parseInt(formData.cardExpireMonth, 10),
+        cardExpireYear: parseInt(formData.cardExpireYear, 10),
+      };
+
+      console.log('Data to save:', userData);
+
+      await saveUserData(uid, updatedUserData);
+
+      setUserData(updatedUserData);   
+      
+      console.log(userData.firstName, formData.firstName);
+    } catch (error) {
+      console.error('Error saving user data:', error.message);
+      setError(error.message || 'Errore durante il salvataggio dei dati');
+    }
   };
 
   return {

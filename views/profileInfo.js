@@ -24,7 +24,6 @@ const ProfileInfoScreen = ({ navigation }) => {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Title style={styles.title}>Profilo</Title>
 
       <Card style={styles.card}>
         <Card.Content>
@@ -47,7 +46,7 @@ const ProfileInfoScreen = ({ navigation }) => {
           <Title style={styles.subtitle}>Carta di Credito</Title>
           <Card style={styles.subcard}>
             <Card.Content>
-              <Title style={styles.text}>Intestatario: {userData.fullName}</Title>
+              <Title style={styles.text}>Intestatario: {userData.cardFullName}</Title>
             </Card.Content>
           </Card>
           <Card style={styles.subcard}>

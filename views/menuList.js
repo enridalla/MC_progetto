@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { FlatList, StyleSheet, View, SafeAreaView, Text } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
-import useMenuViewModel from '../viewmodels/menuListViewModel';
+import useMenuViewModel from '../viewmodels/menuViewModel';
 
 const MenuList = ({ navigation }) => {
   const { menus, loading, error } = useMenuViewModel();
@@ -60,8 +60,8 @@ const styles = StyleSheet.create({
   safeArea: { flex: 1, backgroundColor: '#f5f5f5' },
   card: {
     padding: 16,
-    marginBottom: 16,
     marginHorizontal: 16,
+    marginTop: 8,
     borderRadius: 12,
     backgroundColor: '#fff',
     elevation: 5,
