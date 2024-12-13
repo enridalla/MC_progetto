@@ -24,11 +24,7 @@ const useProfileViewModel = (uid) => {
     };
 
     loadUserData()
-  }, []);
-
-  useEffect(() => {
-    console.log('User data changed');
-  }, [userData]);  
+  }, []); 
 
   // Metodo per aggiornare i campi del form
   const updateField = (field, value) => {

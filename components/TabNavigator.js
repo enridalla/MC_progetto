@@ -1,0 +1,37 @@
+// navigation/TabNavigator.js
+import React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import MenuStackNavigator from './MenuStackNavigator';
+import OrderStatus from '../views/orderStatus';
+import ProfileStackNavigator from './ProfileStackNavigator';
+
+const Tab = createBottomTabNavigator();
+
+const TabNavigator = () => (
+  <Tab.Navigator
+    screenOptions={({ route }) => ({
+      tabBarIcon: ({ focused, color, size }) => {
+        let iconName;
+
+        if (route.name === 'Menu') {
+          iconName = 'food';
+        } else if (route.name === 'Order') {
+          iconName = 'truck-delivery';
+        } else if (route.name === 'Profile') {
+          iconName = 'account';
+        }
+
+        return <Icon name={iconName} size={size} color={color} />;
+      },
+      tabBarActiveTintColor: '#6200ee',
+      tabBarInactiveTintColor: 'gray',
+    })}
+  >
+    <Tab.Screen name="Menu" component={MenuStackNavigator} options={{ headerShown: false }} />
+    <Tab.Screen name="Order" component={OrderStatus} options={{ title: 'Stato Ordine' }} />
+    <Tab.Screen name="Profile" component={ProfileStackNavigator} options={{ headerShown: false }} />
+  </Tab.Navigator>
+);
+
+export default TabNavigator;

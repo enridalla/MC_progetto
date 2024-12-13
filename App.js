@@ -1,74 +1,14 @@
+// App.js
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import MenuList from './views/menuList';
-import MenuDetails from './views/menuDetails';
-import OrderStatus from './views/orderStatus';
-import ProfileInfo from './views/profileInfo';
-import ProfileEdit from './views/profileEdit';
-
-// Stack Navigator per il menù
-const MenuStack = createNativeStackNavigator();
-
-const MenuStackScreen = () => (
-  <MenuStack.Navigator>
-    <MenuStack.Screen name="MenuList" component={MenuList} options={{ title: 'Menù' }} />
-    <MenuStack.Screen name="MenuDetails" component={MenuDetails} options={{ title: 'Dettagli Menù' }} />
-  </MenuStack.Navigator>
-);
-
-// Stack Navigator per il profilo
-const ProfileStack = createNativeStackNavigator();
-
-const ProfileStackScreen = () => (
-  <ProfileStack.Navigator detachInactiveScreens={false}>
-    <ProfileStack.Screen name="ProfileInfo" component={ProfileInfo} options={{ title: 'Profilo' }} />
-    <ProfileStack.Screen name="ProfileEdit" component={ProfileEdit} options={{ title: 'Modifica Profilo' }} />
-  </ProfileStack.Navigator>
-);
-
-// Tab Navigator
-const Tab = createBottomTabNavigator();
+import TabNavigator from './components/TabNavigator';
 
 const App = () => {
   return (
     <NavigationContainer>
-      <Tab.Navigator
-        screenOptions={({ route }) => ({
-          tabBarIcon: ({ focused, color, size }) => {
-            let iconName;
-
-            if (route.name === 'Menu') {
-              iconName = 'food';
-            } else if (route.name === 'Order') {
-              iconName = 'truck-delivery';
-            } else if (route.name === 'Profile') {
-              iconName = 'account';
-            }
-
-            return <Icon name={iconName} size={size} color={color} />;
-          },
-          tabBarActiveTintColor: '#6200ee',
-          tabBarInactiveTintColor: 'gray',
-        })}
-      >
-        <Tab.Screen name="Menu" component={MenuStackScreen} options={{ headerShown: false }} />
-        <Tab.Screen name="Order" component={OrderStatus} options={{ title: 'Stato Ordine' }} />
-        <Tab.Screen name="Profile" component={ProfileStackScreen} options={{ headerShown: false }} />
-      </Tab.Navigator>
+      <TabNavigator />
     </NavigationContainer>
   );
 };
 
 export default App;
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-});

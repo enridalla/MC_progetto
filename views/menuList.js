@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { FlatList, StyleSheet, View, SafeAreaView, Text } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
 import useMenuViewModel from '../viewmodels/menuViewModel';
