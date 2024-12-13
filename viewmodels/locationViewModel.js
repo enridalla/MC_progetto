@@ -1,30 +1,42 @@
-// viewModels/locationViewModel.js
-import { useState } from 'react';
-import { requestLocationPermission, getCurrentPosition } from '../models/useLocation';
+import { useState, useEffect } from 'react';
+import { requestLocationPermission, checkPermissionStatus, getCurrentPosition } from '../models/locationModel';
 
-const useLocationViewModel = () => {
-  const [location, setLocation] = useState(null);
-  const [permissionGranted, setPermissionGranted] = useState(false);
+export const useLocationViewModel = () => {
+  const [userLocation, setUserLocation] = useState(null);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasPermission, setHasPermission] = useState(null);
 
   const fetchLocation = async () => {
+    setIsLoading(true);
+    setError(null);
     try {
-      const status = await requestLocationPermission();
-      if (status !== 'granted') {
-        setPermissionGranted(false);
-        setError('Permesso negato');
-        return;
+      const permissionGranted = await checkPermissionStatus();
+
+      if (!permissionGranted) {
+        await requestLocationPermission(); // Tentativo di richiedere i permessi
       }
 
-      setPermissionGranted(true);
-      const position = await getCurrentPosition();
-      setLocation(position.coords);
+      const location = await getCurrentPosition();
+      setUserLocation(location);
+      setHasPermission(true);
     } catch (err) {
-      setError('Errore nella posizione');
+      setError(err.message || 'Errore durante la richiesta della posizione');
+      setHasPermission(false);
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  return { location, permissionGranted, error, fetchLocation };
-};
+  useEffect(() => {
+    fetchLocation();
+  }, []);
 
-export default useLocationViewModel;
+  return {
+    userLocation,
+    error,
+    isLoading,
+    hasPermission,
+    fetchLocation,
+  };
+};

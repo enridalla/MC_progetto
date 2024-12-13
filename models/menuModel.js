@@ -1,11 +1,7 @@
-import * as Location from 'expo-location';
+import { getCurrentPosition } from './locationModel'; 
 
-const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425'; // Base URL for your API
-const sid = 'vC51NLdQlBnA4no63Ah4YGsiZn0w1MqXvqVRcyxx5lc2nQtYZSTnsVaq9d3EsklJ'; // Your session ID (replace with your own)
-
-// Hardcoded latitude and longitude for the location
-const HARD_CODED_LATITUDE = 45.4642; // Example: Latitude for Milan
-const HARD_CODED_LONGITUDE = 9.1900; // Example: Longitude for Milan
+const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425'; 
+const sid = 'vC51NLdQlBnA4no63Ah4YGsiZn0w1MqXvqVRcyxx5lc2nQtYZSTnsVaq9d3EsklJ'; 
 
 // Function to fetch the image of a specific menu by its ID
 const fetchMenuImage = async (menuId) => {
@@ -37,11 +33,14 @@ const fetchMenuImage = async (menuId) => {
   }
 };
 
-// Function to fetch menus based on hardcoded latitude and longitude
+// Function to fetch menus based on dynamic latitude and longitude
 export const fetchMenus = async () => {
   try {
-    const latitude = HARD_CODED_LATITUDE;
-    const longitude = HARD_CODED_LONGITUDE;
+    const location = await getCurrentPosition();
+    console.log('[fetchMenus] Current location:', location);
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
+  
 
     if (!latitude || !longitude) {
       throw new Error('Invalid latitude or longitude');
@@ -79,8 +78,8 @@ export const fetchMenus = async () => {
         ...menu,
         image: menuImage || 'default-image-url', // Use a default image or null if no image fetched
         location: {
-          lat: HARD_CODED_LATITUDE,
-          lng: HARD_CODED_LONGITUDE,
+          lat: latitude,
+          lng: longitude,
         },
       };
     }));
@@ -102,9 +101,10 @@ export const fetchMenuDetails = async (menuId) => {
 
     console.log(`[fetchMenuDetails] Fetching details for menuId: ${menuId}`);
 
-    // Use hardcoded latitude and longitude
-    const latitude = HARD_CODED_LATITUDE;
-    const longitude = HARD_CODED_LONGITUDE;
+    // Get the real latitude and longitude from the user's position
+    const location = await getCurrentPosition();
+    const latitude = location.coords.latitude;
+    const longitude = location.coords.longitude;
 
     // Fetch the menu details
     const response = await fetch(`${BASE_URL}/menu/${menuId}?lat=${latitude}&lng=${longitude}&sid=${sid}`, {
