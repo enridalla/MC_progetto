@@ -8,7 +8,7 @@ const App = () => {
   const [userLocation, setUserLocation] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [hasPermission, setHasPermission] = useState(false);
+  const [hasLocationPermission, setHasLocationPermission] = useState(null);
 
   const fetchLocation = async () => {
     setIsLoading(true);
@@ -18,14 +18,14 @@ const App = () => {
 
       if (!permissionGranted) {
         await requestLocationPermission();
-        setHasPermission(true);
       }
 
+      setHasLocationPermission(true);
       const location = await getCurrentPosition();
       setUserLocation(location);
     } catch (err) {
       setError(err.message || 'Errore durante la richiesta della posizione');
-      setHasPermission(false);
+      setHasLocationPermission(false);
     } finally {
       setIsLoading(false);
     }
@@ -43,12 +43,20 @@ const App = () => {
     );
   }
 
-  if (hasPermission === false) {
+  if (hasLocationPermission === false) {
     return (
       <View style={styles.centeredContainer}>
         <Text style={styles.errorMessage}>
           Questa app richiede l'accesso alla posizione per funzionare correttamente.
         </Text>
+      </View>
+    );
+  }
+
+  if (hasLocationPermission === null) {
+    return (
+      <View style={styles.centeredContainer}>
+        <Text>Controllo dei permessi...</Text>
       </View>
     );
   }
