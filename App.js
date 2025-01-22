@@ -1,11 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { Text, View, ActivityIndicator } from 'react-native';
-import { useLocationViewModel } from './viewmodels/locationViewModel';  
 import TabNavigator from './components/TabNavigator';
+import { requestLocationPermission, checkPermissionStatus, getCurrentPosition } from './models/locationModel';
 
 const App = () => {
-  const { error, isLoading, hasPermission } = useLocationViewModel();
+  const [userLocation, setUserLocation] = useState(null);
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasPermission, setHasPermission] = useState(false);
+
+  const fetchLocation = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const permissionGranted = await checkPermissionStatus();
+
+      if (!permissionGranted) {
+        await requestLocationPermission();
+        setHasPermission(true);
+      }
+
+      const location = await getCurrentPosition();
+      setUserLocation(location);
+    } catch (err) {
+      setError(err.message || 'Errore durante la richiesta della posizione');
+      setHasPermission(false);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchLocation();
+  }, []);
 
   if (isLoading) {
     return (
@@ -35,7 +63,7 @@ const App = () => {
 
   return (
     <NavigationContainer>
-      <TabNavigator />
+      <TabNavigator userLocation={userLocation} />
     </NavigationContainer>
   );
 };
@@ -45,13 +73,13 @@ const styles = {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 20
+    padding: 20,
   },
   errorMessage: {
     fontSize: 18,
     textAlign: 'center',
-    marginBottom: 20
-  }
+    marginBottom: 20,
+  },
 };
 
 export default App;

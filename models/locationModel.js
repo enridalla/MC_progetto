@@ -13,16 +13,11 @@ export const requestLocationPermission = async () => {
     const permissionResponse = await Location.requestForegroundPermissionsAsync();
     
     if (permissionResponse.status === 'granted') {
-      // Salva lo stato dei permessi in AsyncStorage
       await AsyncStorage.setItem('locationPermission', 'granted');
     } else {
-      // Salva lo stato dei permessi in AsyncStorage (negato)
       await AsyncStorage.setItem('locationPermission', 'denied');
       throw new Error('Permission not granted');
     }
-
-    const userLocation = await Location.getCurrentPositionAsync();
-    return userLocation;
   } catch (error) {
     console.log('[LocationModel] Error requesting location permission:', error);
     throw error;
