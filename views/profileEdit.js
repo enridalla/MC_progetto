@@ -1,14 +1,18 @@
 import React from 'react';
-import { SafeAreaView, Text, View, TextInput, StyleSheet } from 'react-native';
+import { SafeAreaView, Text, View, TextInput, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Button, Title } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
 
 const ProfileEditScreen = ({ navigation }) => {
-  const { formData, updateField, saveChanges, loading, error } = useProfileViewModel();
+  const { formData, updateFormData, updateUserData, loading, error } = useProfileViewModel();
 
-  const handleSave = () => {
-    saveChanges();
-    navigation.goBack();
+  const handleSave = async () => {
+    const success = await updateUserData();
+    if (success) {
+      navigation.goBack();
+    } else {
+      Alert.alert('Errore', 'Si è verificato un errore durante il salvataggio dei dati');
+    }
   };
 
   if (loading) {
@@ -29,95 +33,124 @@ const ProfileEditScreen = ({ navigation }) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.innerContainer}>
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Nome:</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.firstName}
-            onChangeText={(text) => updateField('firstName', text)}
-          />
+      <ScrollView contentContainerStyle={styles.scrollContainer}>
+
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Informazioni personali</Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Nome:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Inserisci il tuo nome"
+              value={formData.firstName}
+              onChangeText={(text) => updateFormData('firstName', text)}
+            />
+          </View>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Cognome:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="Inserisci il tuo cognome"
+              value={formData.lastName}
+              onChangeText={(text) => updateFormData('lastName', text)}
+            />
+          </View>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Cognome:</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.lastName}
-            onChangeText={(text) => updateField('lastName', text)}
-          />
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Dati carta di pagamento</Text>
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>Numero della Carta:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="1234 5678 9012 3456"
+              value={formData.cardNumber}
+              onChangeText={(text) => updateFormData('cardNumber', text)}
+              keyboardType="numeric"
+            />
+          </View>
+
+          <View style={styles.row}>
+            <View style={[styles.inputGroup, styles.rowItem]}>
+              <Text style={styles.label}>Mese di Scadenza:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="MM"
+                value={formData.cardExpireMonth.toString()}
+                onChangeText={(text) => updateFormData('cardExpireMonth', text)}
+                keyboardType="numeric"
+                maxLength={2}
+              />
+            </View>
+
+            <View style={[styles.inputGroup, styles.rowItem]}>
+              <Text style={styles.label}>Anno di Scadenza:</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="YYYY"
+                value={formData.cardExpireYear.toString()}
+                onChangeText={(text) => updateFormData('cardExpireYear', text)}
+                keyboardType="numeric"
+                maxLength={4}
+              />
+            </View>
+          </View>
+
+          <View style={styles.inputGroup}>
+            <Text style={styles.label}>CVV:</Text>
+            <TextInput
+              style={styles.input}
+              placeholder="XXX"
+              value={formData.cardCVV}
+              onChangeText={(text) => updateFormData('cardCVV', text)}
+              keyboardType="numeric"
+              maxLength={3}
+            />
+          </View>
         </View>
 
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Numero della Carta:</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.cardNumber}
-            onChangeText={(text) => updateField('cardNumber', text)}
-            keyboardType="numeric"
-          />
+        <View>
+          <Button
+            mode="contained"
+            onPress={handleSave}
+            style={styles.button}
+          >
+            Salva
+          </Button>
+
+          <Button
+            mode="outlined"
+            onPress={() => navigation.goBack()}
+            style={styles.button}
+          >
+            Indietro
+          </Button>
         </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Mese di Scadenza:</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.cardExpireMonth.toString().padStart(2, '0')} // Assicurati che il mese sia un numero a due cifre
-            onChangeText={(text) => updateField('cardExpireMonth', text.padStart(2, '0'))} // Mantieni sempre due cifre
-            keyboardType="numeric"
-            maxLength={2}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>Anno di Scadenza:</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.cardExpireYear.toString()} // Mantieni l'anno come numero
-            onChangeText={(text) => updateField('cardExpireYear', text)} // Anno come stringa per facilitare l'input
-            keyboardType="numeric"
-            maxLength={4}
-          />
-        </View>
-
-        <View style={styles.inputGroup}>
-          <Text style={styles.label}>CVV:</Text>
-          <TextInput
-            style={styles.input}
-            value={formData.cardCVV}
-            onChangeText={(text) => updateField('cardCVV', text)}
-            keyboardType="numeric"
-          />
-        </View>
-
-        <Button
-          mode="contained"
-          onPress={handleSave}
-          style={styles.button}
-        >
-          Salva
-        </Button>
-
-        <Button
-          mode="outlined"
-          onPress={() => navigation.goBack()}
-          style={styles.button}
-        >
-          Indietro
-        </Button>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#f5f5f5' }, 
-  innerContainer: { flex: 1, marginHorizontal: 16, marginVertical: 16 },
-  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 20 },
+  container: { flex: 1, backgroundColor: '#f5f5f5' },
+  scrollContainer: { padding: 16 },
+  title: { fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginVertical: 20 },
+  section: { marginBottom: 24 },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: '#333' },
   inputGroup: { marginBottom: 16 },
-  label: { fontSize: 16, marginBottom: 4, paddingLeft: 8, color: '#333' }, 
-  input: { height: 40, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingLeft: 10, fontSize: 16, backgroundColor: '#fff'},
-  button: { marginTop: 16, marginHorizontal: 16 },
+  label: { fontSize: 14, marginBottom: 4, color: '#555' },
+  input: {
+    height: 48,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingLeft: 10,
+    fontSize: 16,
+    backgroundColor: '#fff',
+  },
+  button: { marginTop: 16 },
+  row: { flexDirection: 'row', justifyContent: 'space-between' },
+  rowItem: { flex: 1, marginRight: 8 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   loadingText: { fontSize: 18 },
   error: { flex: 1, justifyContent: 'center', alignItems: 'center' },

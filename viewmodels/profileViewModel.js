@@ -22,12 +22,12 @@ const useProfileViewModel = (uid) => {
         setLoading(false);
       }
     };
-
+    
     loadUserData()
   }, []); 
 
   // Metodo per aggiornare i campi del form
-  const updateField = (field, value) => {
+  const updateFormData = (field, value) => {
     setFormData((prev) => ({
       ...prev,
       [field]: value,
@@ -35,7 +35,7 @@ const useProfileViewModel = (uid) => {
   };
 
   // Metodo per salvare le modifiche ai dati dell'utente
-  const saveChanges = async () => {
+  const updateUserData = async () => {
     const uid = 36228; 
 
     try {
@@ -46,16 +46,12 @@ const useProfileViewModel = (uid) => {
         cardExpireYear: parseInt(formData.cardExpireYear, 10),
       };
 
-      console.log('Data to save:', userData);
-
       await saveUserData(uid, updatedUserData);
-
       setUserData(updatedUserData);   
       
-      console.log(userData.firstName, formData.firstName);
+      return true;
     } catch (error) {
-      console.error('Error saving user data:', error.message);
-      setError(error.message || 'Errore durante il salvataggio dei dati');
+      return false;
     }
   };
 
@@ -64,8 +60,8 @@ const useProfileViewModel = (uid) => {
     formData,
     loading,
     error,
-    updateField,
-    saveChanges,
+    updateFormData,
+    updateUserData,
   };
 };
 
