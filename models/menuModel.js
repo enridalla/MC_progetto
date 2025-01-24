@@ -31,7 +31,7 @@ const fetchMenuImage = async (menuId) => {
 
   } catch (error) {
     console.error('[fetchMenuImage] Error during image fetch:', error);
-    throw error; // Re-throw to be handled by the calling function
+    throw error;
   }
 };
 
@@ -71,7 +71,7 @@ export const fetchMenus = async () => {
 
       if (menuId) {
         try {
-          menuImage = await fetchMenuImage(menuId); // Fetch image for the menu
+          menuImage = await fetchMenuImage(menuId);
         } catch (error) {
           console.error(`[fetchMenus] Failed to fetch image for menuId ${menuId}:`, error);
         }

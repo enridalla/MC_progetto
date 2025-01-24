@@ -47,8 +47,8 @@ export const fetchSID = async () => {
 
     if (storedSID && storedUID) {
       console.log("(profileModel) SID e UID già presenti nello storage.");
-      sid = storedSID;
-      uid = storedUID;
+      SID = storedSID;
+      UID = storedUID;
       return;
     }
 
@@ -69,7 +69,8 @@ export const fetchSID = async () => {
     
     await AsyncStorage.setItem('sid', data.sid.toString());
     await AsyncStorage.setItem('uid', data.uid.toString());
-    sid = data.sid;
+    SID = data.sid;
+    UID = data.uid;
 
   } catch (error) {
     console.error('Error fetching SID:', error);
@@ -79,7 +80,7 @@ export const fetchSID = async () => {
 
 export const getUserData = async () => {
   console.log('Fetching user data for ' + UID + " " + SID);
-  
+
     try {
       const response = await fetch(`${BASE_URL}/user/${UID}?sid=${SID}`, {
         method: 'GET',
@@ -108,7 +109,7 @@ export const getUserData = async () => {
         ...data,
         sid: SID, 
       };
-
+    
       console.log('Data to save:', updatedData);
       const response = await fetch(`${BASE_URL}/user/${UID}?sid=${SID}`, {
         method: 'PUT',
