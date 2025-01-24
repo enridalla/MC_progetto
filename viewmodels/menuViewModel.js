@@ -7,7 +7,11 @@ const useMenuViewModel = (menuId = null) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+
   useEffect(() => {
+    if (menuId) {
+      return;
+    }
     const loadMenus = async () => {
       try {
         setLoading(true);
@@ -23,6 +27,7 @@ const useMenuViewModel = (menuId = null) => {
     loadMenus();
   }, []);
 
+  
   useEffect(() => {
     if (!menuId) {
       setMenuDetails(null);
@@ -43,6 +48,7 @@ const useMenuViewModel = (menuId = null) => {
 
     loadMenuDetails();
   }, [menuId]);
+  
 
   return { menus, menuDetails, loading, error };
 };

@@ -119,8 +119,6 @@ export const fetchMenuDetails = async (menuId) => {
       },
     });
 
-    console.log(`[fetchMenuDetails] Response status for menuId ${menuId}: ${response.status}`);
-
     if (!response.ok) {
       const data = await response.json();
       console.error('[fetchMenuDetails] Errore durante il fetch dei dettagli:', data);
