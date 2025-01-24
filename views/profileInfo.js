@@ -4,7 +4,7 @@ import { Card, Title, Button, Paragraph, Avatar } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
 
 const ProfileInfoScreen = ({ navigation }) => {
-  const { userData, loading, error } = useProfileViewModel();
+  const { userData, loading, error, checkProfileComplete } = useProfileViewModel();
 
   if (loading) {
     return (
@@ -21,6 +21,27 @@ const ProfileInfoScreen = ({ navigation }) => {
       </View>
     );
   }
+
+
+  /*
+  if () {
+    return (
+      <View style={styles.incompleteProfileContainer}>
+        <Avatar.Icon size={120} icon="account-alert" style={styles.incompleteAvatar} />
+        <Text style={styles.incompleteText}>
+          Completa il tuo profilo ed inizia ad ordinare!
+        </Text>
+        <Button
+          mode="contained"
+          onPress={() => navigation.navigate('ProfileEdit')}
+          style={styles.incompleteButton}
+        >
+          Completa il profilo
+        </Button>
+      </View>
+    );
+  }
+  */
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -95,6 +116,10 @@ const styles = StyleSheet.create({
   loadingText: { fontSize: 18 },
   error: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' },
   errorText: { fontSize: 18, color: 'red' },
+  incompleteProfileContainer: {flex: 1, justifyContent: 'center', alignItems: 'center', padding: 16, backgroundColor: '#f5f5f5'},
+  incompleteAvatar: { backgroundColor: '#ff7043', marginBottom: 16},
+  incompleteText: { fontSize: 18, textAlign: 'center', marginBottom: 16, color: '#333'},
+  incompleteButton: { marginTop: 16},
 });
 
 export default ProfileInfoScreen;

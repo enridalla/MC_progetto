@@ -13,8 +13,10 @@ const useProfileViewModel = (uid) => {
       try {
         setLoading(true);
         const data = await getUserData(uid);
+
         setUserData(data); // Imposta i dati utente
         setFormData(data);        
+
       } catch (err) {
         console.error('Error loading user data:', err.message);
         setError(err.message || 'Errore durante il caricamento dei dati');
