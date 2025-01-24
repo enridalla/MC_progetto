@@ -1,7 +1,7 @@
+import { getSID } from './profileModel';
 import { getCurrentPosition } from './locationModel'; 
 
 const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425'; 
-const sid = 'vC51NLdQlBnA4no63Ah4YGsiZn0w1MqXvqVRcyxx5lc2nQtYZSTnsVaq9d3EsklJ'; 
 
 // Function to fetch the image of a specific menu by its ID
 const fetchMenuImage = async (menuId) => {
@@ -9,6 +9,8 @@ const fetchMenuImage = async (menuId) => {
     if (!menuId) {
       throw new Error('Invalid menu ID');
     }
+
+    const sid = await getSID();
 
     const response = await fetch(`${BASE_URL}/menu/${menuId}/image?sid=${sid}`, {
       method: 'GET',
@@ -40,7 +42,8 @@ export const fetchMenus = async () => {
     console.log('[fetchMenus] Current location:', location);
     const latitude = location.coords.latitude;
     const longitude = location.coords.longitude;
-  
+
+    const sid = await getSID();
 
     if (!latitude || !longitude) {
       throw new Error('Invalid latitude or longitude');
@@ -98,6 +101,8 @@ export const fetchMenuDetails = async (menuId) => {
     if (!menuId) {
       throw new Error('Menu ID non valido');
     }
+
+    const sid = await getSID();
 
     console.log(`[fetchMenuDetails] Fetching details for menuId: ${menuId}`);
 

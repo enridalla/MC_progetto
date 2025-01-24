@@ -36,8 +36,6 @@ const useProfileViewModel = (uid) => {
 
   // Metodo per salvare le modifiche ai dati dell'utente
   const updateUserData = async () => {
-    const uid = 36228; 
-
     try {
       const updatedUserData = {
         ...formData,
@@ -46,7 +44,7 @@ const useProfileViewModel = (uid) => {
         cardExpireYear: parseInt(formData.cardExpireYear, 10),
       };
 
-      await saveUserData(uid, updatedUserData);
+      await saveUserData(updatedUserData);
       setUserData(updatedUserData);   
       
       return true;

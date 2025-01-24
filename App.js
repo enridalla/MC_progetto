@@ -3,6 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Text, View, ActivityIndicator } from 'react-native';
 import TabNavigator from './components/TabNavigator';
 import { requestLocationPermission, checkPermissionStatus, getCurrentPosition } from './models/locationModel';
+import { fetchSID, getSID, getUID } from './models/profileModel';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const App = () => {
   const [userLocation, setUserLocation] = useState(null);
@@ -31,8 +33,28 @@ const App = () => {
     }
   };
 
+  const initializeUser = async () => {
+    try {
+      const sid = await getSID();
+      if (!sid) {
+        console.log('SID non trovato, lo sto creando...');
+        await fetchSID(); // Se non esiste, crealo
+        console.log('SID creato:', await getSID());
+        console.log('UID creato:', await getUID());
+      } else {
+        console.log('SID trovato:', sid);
+        console.log('UID trovato:', await getUID());
+      }
+    } catch (error) {
+      console.error('Error initializing user:', error);
+    }
+  };
+
   useEffect(() => {
+    initializeUser();
     fetchLocation();
+
+    console.log('\n\n' + AsyncStorage + '\n\n');  
   }, []);
 
   if (isLoading) {

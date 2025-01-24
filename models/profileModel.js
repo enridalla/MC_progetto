@@ -1,33 +1,87 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425';
-const SID = '0EVb5bQModsCTtHFOWPzuZHelLAIcKA1cVGs411iHvbnKg90HU0cRxQoa6U9GkCd';
+let SID = null;
+let UID = null;
 
-export const createUser = async () => {
+export const getSID = async () => {
+  if (SID) {
+    return SID; // Restituisci il SID dalla cache in memoria
+  }
+
   try {
-    const response = await fetch(`${BASE_URL}/sid`, {
-      method: 'GET',
+    const sid = await AsyncStorage.getItem('sid');
+    if (!sid) {
+      console.log('SID non trovato. Devi inizializzare l’utente.');
+    }
+    SID = sid; 
+    return sid;
+  } catch (error) {
+    console.error('Errore nel recupero del SID:', error);
+    throw error;
+  }
+};
+
+export const getUID = async () => {
+  if (UID) {
+    return UID; 
+  }
+
+  try {
+    const uid = await AsyncStorage.getItem('uid');
+    if (!uid) {
+      console.log('UID non trovato. Devi inizializzare l’utente.');
+    }
+    UID = uid; 
+    return uid;
+  } catch (error) {
+    console.error('Errore nel recupero del UID:', error);
+    throw error;
+  }
+};
+
+export const fetchSID = async () => {
+  try {
+    const storedSID = await AsyncStorage.getItem("sid");
+    const storedUID = await AsyncStorage.getItem("uid");
+
+    if (storedSID && storedUID) {
+      console.log("(profileModel) SID e UID già presenti nello storage.");
+      sid = storedSID;
+      uid = storedUID;
+      return;
+    }
+
+    const response = await fetch(`${BASE_URL}/user`, {
+      method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
     });
 
-    if (!response.ok){
+    if (!response.ok) {
       console.log(`Response not OK, status: ${response.status}`);
       const data = await response.json();
       throw new Error(data.error || `Failed to fetch SID, status: ${response.status}`);
     }
 
     const data = await response.json();
-    return data;
+    
+    await AsyncStorage.setItem('sid', data.sid.toString());
+    await AsyncStorage.setItem('uid', data.uid.toString());
+    sid = data.sid;
+
   } catch (error) {
     console.error('Error fetching SID:', error);
-    throw error;
-}
+    throw error; 
+  }
 };
 
-export const getUserData = async (uid) => {
-  uid = 36228; // ID utente DA TOGLIERE
+export const getUserData = async () => {
+  console.log('Fetching user data for ' + UID + " " + SID);
+  
     try {
-      const response = await fetch(`${BASE_URL}/user/${uid}?sid=${SID}`, {
+      const response = await fetch(`${BASE_URL}/user/${UID}?sid=${SID}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -48,17 +102,15 @@ export const getUserData = async (uid) => {
     }
   };
 
-  export const saveUserData = async (uid, data) => {
-     uid = 36228; // ID utente DA TOGLIERE
-
+  export const saveUserData = async (data) => {
     try {
       const updatedData = {
         ...data,
         sid: SID, 
       };
-    
+
       console.log('Data to save:', updatedData);
-      const response = await fetch(`${BASE_URL}/user/${uid}?sid=${SID}`, {
+      const response = await fetch(`${BASE_URL}/user/${UID}?sid=${SID}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

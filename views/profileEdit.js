@@ -63,7 +63,7 @@ const ProfileEditScreen = ({ navigation }) => {
             <Text style={styles.label}>Numero della Carta:</Text>
             <TextInput
               style={styles.input}
-              placeholder="1234 5678 9012 3456"
+              placeholder="1234567890123456"
               value={formData.cardNumber}
               onChangeText={(text) => updateFormData('cardNumber', text)}
               keyboardType="numeric"
@@ -76,7 +76,7 @@ const ProfileEditScreen = ({ navigation }) => {
               <TextInput
                 style={styles.input}
                 placeholder="MM"
-                value={formData.cardExpireMonth.toString()}
+                value={formData.cardExpireMonth ? formData.cardExpireMonth.toString() : ''}
                 onChangeText={(text) => updateFormData('cardExpireMonth', text)}
                 keyboardType="numeric"
                 maxLength={2}
@@ -88,7 +88,7 @@ const ProfileEditScreen = ({ navigation }) => {
               <TextInput
                 style={styles.input}
                 placeholder="YYYY"
-                value={formData.cardExpireYear.toString()}
+                value={formData.cardExpireYear ? formData.cardExpireYear.toString() : ''}
                 onChangeText={(text) => updateFormData('cardExpireYear', text)}
                 keyboardType="numeric"
                 maxLength={4}
