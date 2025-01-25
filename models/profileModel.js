@@ -46,12 +46,13 @@ export const fetchSID = async () => {
     const storedUID = await AsyncStorage.getItem("uid");
 
     if (storedSID && storedUID) {
-      console.log("(profileModel) SID e UID già presenti nello storage.");
+      console.log("(profileModel) SID e UID recuperati nello storage: ", storedSID, storedUID);
       SID = storedSID;
       UID = storedUID;
       return;
     }
 
+    console.log('Fetching SID...');
     const response = await fetch(`${BASE_URL}/user`, {
       method: 'POST',
       headers: {
@@ -71,6 +72,7 @@ export const fetchSID = async () => {
     await AsyncStorage.setItem('uid', data.uid.toString());
     SID = data.sid;
     UID = data.uid;
+    console.log('SID fetched:', data.sid);
 
   } catch (error) {
     console.error('Error fetching SID:', error);

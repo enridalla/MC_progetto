@@ -30,7 +30,7 @@ export const getCurrentPosition = async () => {
     const userLocation = await Location.getCurrentPositionAsync();
     return userLocation;
   } catch (error) {
-    console.error('[LocationModel] Error getting position:', error);
+    console.log('[LocationModel] Error getting position:', error);
     throw error; 
   }
 };
