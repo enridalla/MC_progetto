@@ -1,8 +1,8 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425';
 let SID = null;
 let UID = null;
+let profile = null;
 
 export const getSID = async () => {
   if (SID) {
@@ -41,6 +41,7 @@ export const getUID = async () => {
 };
 
 export const fetchSID = async () => {
+  console.log('Fetching SID...');
   try {
     const storedSID = await AsyncStorage.getItem("sid");
     const storedUID = await AsyncStorage.getItem("uid");
@@ -81,9 +82,23 @@ export const fetchSID = async () => {
 };
 
 export const getUserData = async () => {
-  console.log('Fetching user data for ' + UID + " " + SID);
-
+  console.log('Fetching profile...');
     try {
+      if (profile) {
+        console.log('Profile found in memory');
+        return profile;
+      }
+
+      const storedProfile = await AsyncStorage.getItem('profile');
+      if (storedProfile) {
+        console.log('Profile found in storage');
+        profile = JSON.parse(storedProfile);
+        return profile;
+      }
+
+      console.log('Profile not found');
+      return null;
+      /*
       const response = await fetch(`${BASE_URL}/user/${UID}?sid=${SID}`, {
         method: 'GET',
         headers: {
@@ -99,10 +114,13 @@ export const getUserData = async () => {
   
       const data = await response.json();
       return data;
+      */
+     
     } catch (error) {
       console.error('Error fetching user data:', error);
       throw error;
     }
+     
   };
 
   export const saveUserData = async (data) => {
@@ -128,7 +146,11 @@ export const getUserData = async () => {
         throw new Error(errorData || `Failed to save user data, status: ${response.status}`);
     }
 
-      console.log('Data saved successfully');
+      console.log('Data saved successfully to server');
+
+      AsyncStorage.setItem('profile', JSON.stringify(updatedData));
+
+      console.log('Data saved successfully to storage');
     } catch (error) {
       console.log('Error saving user data:', error);
       throw error;

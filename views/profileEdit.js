@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, Text, View, TextInput, StyleSheet, Alert, ScrollView } from 'react-native';
-import { Button, Title } from 'react-native-paper';
+import { Button } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
 
 const ProfileEditScreen = ({ navigation }) => {
@@ -9,7 +9,10 @@ const ProfileEditScreen = ({ navigation }) => {
   const handleSave = async () => {
     const success = await updateUserData();
     if (success) {
-      navigation.goBack();
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'ProfileInfo' }],
+      });
     } else {
       Alert.alert('Errore', 'Si è verificato un errore durante il salvataggio dei dati');
     }
@@ -42,7 +45,7 @@ const ProfileEditScreen = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="Inserisci il tuo nome"
-              value={formData.firstName}
+              value={formData.firstName || ''}
               onChangeText={(text) => updateFormData('firstName', text)}
             />
           </View>
@@ -51,7 +54,7 @@ const ProfileEditScreen = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="Inserisci il tuo cognome"
-              value={formData.lastName}
+              value={formData.lastName || ''}
               onChangeText={(text) => updateFormData('lastName', text)}
             />
           </View>
@@ -64,7 +67,7 @@ const ProfileEditScreen = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="1234567890123456"
-              value={formData.cardNumber}
+              value={formData.cardNumber || ''}
               onChangeText={(text) => updateFormData('cardNumber', text)}
               keyboardType="numeric"
             />
@@ -101,7 +104,7 @@ const ProfileEditScreen = ({ navigation }) => {
             <TextInput
               style={styles.input}
               placeholder="XXX"
-              value={formData.cardCVV}
+              value={formData.cardCVV || ''}
               onChangeText={(text) => updateFormData('cardCVV', text)}
               keyboardType="numeric"
               maxLength={3}
@@ -139,15 +142,7 @@ const styles = StyleSheet.create({
   sectionTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 12, color: '#333' },
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 14, marginBottom: 4, color: '#555' },
-  input: {
-    height: 48,
-    borderColor: '#ccc',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingLeft: 10,
-    fontSize: 16,
-    backgroundColor: '#fff',
-  },
+  input: { height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingLeft: 10, fontSize: 16, backgroundColor: '#fff',},
   button: { marginTop: 16 },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   rowItem: { flex: 1, marginRight: 8 },

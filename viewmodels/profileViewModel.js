@@ -12,9 +12,9 @@ const useProfileViewModel = (uid) => {
       console.log('Loading user data...');
       try {
         setLoading(true);
-        const data = await getUserData(uid);
-        setUserData(data); // Imposta i dati utente
-        setFormData(data);        
+        const data = await getUserData(); 
+        setUserData(data); 
+        setFormData(data || {});        
       } catch (err) {
         console.error('Error loading user data:', err.message);
         setError(err.message || 'Errore durante il caricamento dei dati');
@@ -24,7 +24,7 @@ const useProfileViewModel = (uid) => {
     };
     
     loadUserData()
-  }, []); 
+  }, [userData]); 
 
   // Metodo per aggiornare i campi del form
   const updateFormData = (field, value) => {

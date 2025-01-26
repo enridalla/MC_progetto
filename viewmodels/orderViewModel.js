@@ -1,4 +1,3 @@
-// /viewmodels/orderViewModel.js
 import { useState } from 'react';
 
 const useOrderViewModel = () => {

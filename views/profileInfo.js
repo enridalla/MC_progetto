@@ -4,7 +4,7 @@ import { Card, Title, Button, Paragraph, Avatar } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
 
 const ProfileInfoScreen = ({ navigation }) => {
-  const { userData, loading, error, checkProfileComplete } = useProfileViewModel();
+  const { userData, loading, error } = useProfileViewModel();
 
   if (loading) {
     return (
@@ -22,9 +22,7 @@ const ProfileInfoScreen = ({ navigation }) => {
     );
   }
 
-
-  /*
-  if () {
+  if (!userData) {
     return (
       <View style={styles.incompleteProfileContainer}>
         <Avatar.Icon size={120} icon="account-alert" style={styles.incompleteAvatar} />
@@ -41,7 +39,6 @@ const ProfileInfoScreen = ({ navigation }) => {
       </View>
     );
   }
-  */
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
@@ -56,11 +53,11 @@ const ProfileInfoScreen = ({ navigation }) => {
           <Title style={styles.sectionTitle}>Dati Utente</Title>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Nome:</Paragraph>
-            <Paragraph style={styles.value}>{userData.firstName}</Paragraph>
+            <Paragraph style={styles.value}>{userData.firstName || ""}</Paragraph>
           </View>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Cognome:</Paragraph>
-            <Paragraph style={styles.value}>{userData.lastName}</Paragraph>
+            <Paragraph style={styles.value}>{userData.lastName || ""}</Paragraph>
           </View>
         </Card.Content>
       </Card>
@@ -71,21 +68,21 @@ const ProfileInfoScreen = ({ navigation }) => {
           <Title style={styles.sectionTitle}>Carta di Credito</Title>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Intestatario:</Paragraph>
-            <Paragraph style={styles.value}>{userData.cardFullName}</Paragraph>
+            <Paragraph style={styles.value}>{userData.cardFullName || ""}</Paragraph>
           </View>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Numero:</Paragraph>
-            <Paragraph style={styles.value}>{userData.cardNumber}</Paragraph>
+            <Paragraph style={styles.value}>{userData.cardNumber || ""}</Paragraph>
           </View>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Scadenza:</Paragraph>
             <Paragraph style={styles.value}>
-              {userData.cardExpireMonth}/{userData.cardExpireYear}
+              {(userData.cardExpireMonth && userData.cardExpireYear) ? `${userData.cardExpireMonth}/${userData.cardExpireYear}` : ""}
             </Paragraph>
           </View>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>CVV:</Paragraph>
-            <Paragraph style={styles.value}>{userData.cardCVV}</Paragraph>
+            <Paragraph style={styles.value}>{userData.cardCVV || ""}</Paragraph>
           </View>
         </Card.Content>
       </Card>

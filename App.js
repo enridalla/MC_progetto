@@ -37,15 +37,13 @@ const App = () => {
     try {
       await fetchSID(); 
     } catch (error) {
-      console.error('Error initializing user:', error);
+      console.log('Errore durante l’inizializzazione dell’utente:', error);
     }
   };
 
   useEffect(() => {
     initializeUser();
     fetchLocation();
-
-    console.log('\n\n' + AsyncStorage + '\n\n');  
   }, []);
 
   if (isLoading) {
