@@ -1,5 +1,6 @@
 import { getSID } from './profileModel';
 import { getCurrentPosition } from './locationModel'; 
+import dbController from '../models/DBController';
 
 const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425'; 
 
@@ -10,8 +11,18 @@ const fetchMenuImage = async (menuId) => {
       throw new Error('Invalid menu ID');
     }
 
-    const sid = await getSID();
+    console.log(`[fetchMenuImage] Fetching image for menuId: ${menuId}`);
 
+    // Fetch dal DB prima
+    const base64Image = await dbController.getImage(menuId); 
+    if (base64Image) {
+      console.log(`[fetchMenuImage] Image found in DB for menuId ${menuId}`);
+      return base64Image;
+    }
+
+    // Fetch dal server se l'immagine non è nel DB
+    console.log(`[fetchMenuImage] Image not found in DB for menuId ${menuId}. Fetching from server...`);
+    const sid = await getSID();
     const response = await fetch(`${BASE_URL}/menu/${menuId}/image?sid=${sid}`, {
       method: 'GET',
       headers: {
@@ -27,7 +38,12 @@ const fetchMenuImage = async (menuId) => {
     }
 
     const imageUrl = await response.json();
-    return imageUrl.base64; // Return the base64 image data
+    const imageBase64 = imageUrl.base64;
+
+    // Salva l'immagine nel DB per future richieste
+    await dbController.saveImage(menuId, imageBase64);
+
+    return imageBase64; // Restituisci l'immagine base64 ricevuta dal server
 
   } catch (error) {
     console.error('[fetchMenuImage] Error during image fetch:', error);

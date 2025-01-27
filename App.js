@@ -3,8 +3,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Text, View, ActivityIndicator } from 'react-native';
 import TabNavigator from './components/TabNavigator';
 import { requestLocationPermission, checkPermissionStatus, getCurrentPosition } from './models/locationModel';
-import { fetchSID, getSID, getUID } from './models/profileModel';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { fetchSID } from './models/profileModel';
+
 
 const App = () => {
   const [userLocation, setUserLocation] = useState(null);
