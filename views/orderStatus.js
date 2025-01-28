@@ -1,14 +1,54 @@
-import React from 'react';
-import { StyleSheet, View, Text, Dimensions } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
-import MapView, { Marker } from 'react-native-maps';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 
 const OrderView = () => {
-  const orderStatus = 'consegnato'; // "in consegna" o "consegnato"
-
+  const orderStatus = 'in consegna'; // "in consegna" o "consegnato"
+  
   const restaurantLocation = { latitude: 45.4642, longitude: 9.19 };
   const deliveryLocation = { latitude: 45.4636, longitude: 9.1881 };
   const droneLocation = { latitude: 45.4639, longitude: 9.1895 };
+
+  const [region, setRegion] = useState({
+    latitude: restaurantLocation.latitude,
+    longitude: restaurantLocation.longitude,
+    latitudeDelta: 0.01,
+    longitudeDelta: 0.01,
+  });
+
+  const mapRef = useRef(null);
+
+  const handleMapRegionChange = (newRegion) => {
+    setRegion(newRegion);
+  };
+
+  const zoomIn = () => {
+    setRegion((prevRegion) => ({
+      ...prevRegion,
+      latitudeDelta: Math.max(prevRegion.latitudeDelta / 2, 0.002),
+      longitudeDelta: Math.max(prevRegion.longitudeDelta / 2, 0.002),
+    }));
+  };
+
+  const zoomOut = () => {
+    setRegion((prevRegion) => ({
+      ...prevRegion,
+      latitudeDelta: Math.min(prevRegion.latitudeDelta * 2, 1),
+      longitudeDelta: Math.min(prevRegion.longitudeDelta * 2, 1),
+    }));
+  };
+
+  const centerMapOnDrone = () => {
+    mapRef.current.animateToRegion({
+      ...droneLocation,
+      latitudeDelta: region.latitudeDelta,
+      longitudeDelta: region.longitudeDelta,
+    }, 1000); // Animazione per centrare sulla posizione del drone
+  };
+
+  // Linea d'aria tra il drone e la destinazione (utente)
+  const pathCoordinates = [droneLocation, deliveryLocation];
 
   return (
     <View style={styles.container}>
@@ -24,13 +64,10 @@ const OrderView = () => {
       <Card style={styles.card}>
         <Title style={styles.sectionTitle}>Tracciamento</Title>
         <MapView
+          ref={mapRef}
           style={styles.map}
-          initialRegion={{
-            latitude: restaurantLocation.latitude,
-            longitude: restaurantLocation.longitude,
-            latitudeDelta: 0.01,
-            longitudeDelta: 0.01,
-          }}
+          region={region}
+          onRegionChangeComplete={handleMapRegionChange}
         >
           <Marker
             coordinate={restaurantLocation}
@@ -52,7 +89,31 @@ const OrderView = () => {
               pinColor="blue"
             />
           )}
+
+          {/* Linea d'aria solo tra il drone e la destinazione */}
+          {orderStatus === 'in consegna' && (
+            <Polyline
+              coordinates={pathCoordinates}
+              strokeColor="#0000FF"
+              strokeWidth={3}
+            />
+          )}
         </MapView>
+
+        {/* Sezione di controllo unificata */}
+        {orderStatus === 'in consegna' && (
+          <View style={styles.controlPanel}>
+            <TouchableOpacity style={styles.zoomButton} onPress={zoomIn}>
+              <Text style={styles.buttonText}>+</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.zoomButton} onPress={zoomOut}>
+              <Text style={styles.buttonText}>-</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.centerButton} onPress={centerMapOnDrone}>
+              <Text style={styles.buttonText}>Centra</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </Card>
 
       {/* Dettagli Ordine */}
@@ -115,12 +176,40 @@ const styles = StyleSheet.create({
   },
   map: {
     width: '100%',
-    height: height * 0.4, // Altezza proporzionale allo schermo
-    borderRadius: 8, // Arrotondamento agli angoli della mappa
+    height: height * 0.4,
+    borderRadius: 8, 
   },
   dataRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   label: { fontSize: 16, color: '#555' },
   value: { fontSize: 16, fontWeight: 'bold', color: '#000' },
+  controlPanel: {
+    position: 'absolute',
+    bottom: 8,
+    right: 16,
+    flexDirection: 'row',
+    zIndex: 1,
+  },
+  zoomButton: {
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    marginRight: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  centerButton: {
+    backgroundColor: 'rgba(255, 255, 255, 1)',
+    paddingHorizontal: 10,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#333',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
 });
 
 export default OrderView;
