@@ -98,7 +98,6 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   button: {
-    borderRadius: 8,
     marginTop: 20,
   },
   loading: {

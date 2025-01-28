@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
   inputGroup: { marginBottom: 16 },
   label: { fontSize: 14, marginBottom: 4, color: '#555' },
   input: { height: 48, borderColor: '#ccc', borderWidth: 1, borderRadius: 8, paddingLeft: 10, fontSize: 16, backgroundColor: '#fff',},
-  button: { marginTop: 16 },
+  button: { marginTop: 12 },
   row: { flexDirection: 'row', justifyContent: 'space-between' },
   rowItem: { flex: 1, marginRight: 8 },
   loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
