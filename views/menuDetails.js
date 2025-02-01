@@ -1,11 +1,20 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
-import useMenuDetailsViewModel from '../viewmodels/menuViewModel';
+import useMenuViewModel from '../viewmodels/menuViewModel';
 
 const MenuDetails = ({ route, navigation }) => {
   const { menuId } = route.params;
-  const { menuDetails, loading, error } = useMenuDetailsViewModel(menuId);
+  const { menuDetails, loading, error, order } = useMenuViewModel(menuId);
+
+  const handleOrder = async (menuId) => {
+    const success = await order(menuId);
+    if (success) {
+      navigation.navigate('OrderStatus');
+    } else {
+      Alert.alert('Errore', 'Si è verificato un errore durante l\'ordine');
+    }
+  }
 
   if (loading) {
     return (
@@ -45,7 +54,7 @@ const MenuDetails = ({ route, navigation }) => {
       <Text style={styles.price}>Prezzo: {menuDetails.price} €</Text>
       <Text style={styles.longDescription}>{menuDetails.longDescription}</Text>
       
-      <Button mode="contained" onPress={() => alert('Ordine effettuato!')} style={styles.button}>
+      <Button mode="contained" onPress={() => handleOrder(menuId)} style={styles.button}>
         Ordina Ora
       </Button>
       

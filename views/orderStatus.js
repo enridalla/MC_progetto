@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
 import MapView, { Marker, Polyline } from 'react-native-maps';
+import { getCurrentPosition } from '../models/locationModel';
 
 const OrderView = () => {
   const orderStatus = 'in consegna'; // "in consegna" o "consegnato"

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchMenuDetails, fetchMenus } from '../models/menuModel';
 import dbController from '../models/DBController';
+import { buyMenu } from '../models/orderModel';
 
 const useMenuViewModel = (menuId = null) => {
   const [menus, setMenus] = useState([]);
@@ -56,9 +57,17 @@ const useMenuViewModel = (menuId = null) => {
 
     loadMenuDetails();
   }, [menuId]);
-  
 
-  return { menus, menuDetails, loading, error, dbController };
+  const order = async (menuId) => {
+    try {
+      await buyMenu(menuId);
+      return true;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  return { menus, menuDetails, loading, error, dbController, order };
 };
 
 export default useMenuViewModel;
