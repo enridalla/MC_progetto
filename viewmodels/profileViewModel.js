@@ -11,7 +11,6 @@ const useProfileViewModel = (uid) => {
     const loadUserData = async () => {
       console.log('Loading user data...');
       try {
-        setLoading(true);
         const data = await getUserData(); 
         setUserData(data); 
         setFormData(data || {});        

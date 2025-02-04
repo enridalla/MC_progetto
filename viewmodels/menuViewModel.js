@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { fetchMenuDetails, fetchMenus } from '../models/menuModel';
 import dbController from '../models/DBController';
 import { buyMenu } from '../models/orderModel';
+import { getUserData } from '../models/profileModel';
 
 const useMenuViewModel = (menuId = null) => {
   const [menus, setMenus] = useState([]);
@@ -15,7 +16,6 @@ const useMenuViewModel = (menuId = null) => {
     }
     const loadMenus = async () => {
       try {
-        setLoading(true);
         await dbController.openDB(); 
         const data = await fetchMenus();
         setMenus(data);
@@ -31,7 +31,6 @@ const useMenuViewModel = (menuId = null) => {
     
     // Funzione di cleanup per chiudere il DB quando il componente viene smontato
     return () => {
-      console.log('Closing DB...');
       dbController.closeDB(); // Chiama la funzione per chiudere il database
   };
   }, []);
@@ -60,12 +59,27 @@ const useMenuViewModel = (menuId = null) => {
 
   const order = async (menuId) => {
     try {
-      await buyMenu(menuId);
-      return true;
+      // Verifica se l'utente ha completato il profilo
+      const userData = await getUserData();
+      if (!userData) {
+        return { success: false, message: 'Completa il profilo per effettuare un ordine.' };
+      }
+  
+      // Effettua l'ordine
+      const orderResponse = await buyMenu(menuId);
+      console.log('Order response:', orderResponse);
+      if (!orderResponse.success) {
+        return { success: false, message: orderResponse.message || 'Errore nell\'effettuare l\'ordine. Riprova più tardi.' };
+      }
+  
+      return { success: true, message: 'Ordine effettuato con successo!' };
     } catch (err) {
-      return false;
+      console.error('Errore nell\'effettuare l\'ordine:', err);
+      return { success: false, message: 'Si è verificato un errore. Riprova più tardi.' };
     }
-  }
+  };
+  
+  
 
   return { menus, menuDetails, loading, error, dbController, order };
 };

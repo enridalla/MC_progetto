@@ -1,62 +1,166 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
 import MapView, { Marker, Polyline } from 'react-native-maps';
-import { getCurrentPosition } from '../models/locationModel';
+import { useIsFocused } from '@react-navigation/native';
+
+import { getOrderStatus } from '../models/orderModel';
 
 const OrderView = () => {
-  const orderStatus = 'in consegna'; // "in consegna" o "consegnato"
-  
-  const restaurantLocation = { latitude: 45.4642, longitude: 9.19 };
-  const deliveryLocation = { latitude: 45.4636, longitude: 9.1881 };
-  const droneLocation = { latitude: 45.4639, longitude: 9.1895 };
-
-  const [region, setRegion] = useState({
-    latitude: restaurantLocation.latitude,
-    longitude: restaurantLocation.longitude,
-    latitudeDelta: 0.01,
-    longitudeDelta: 0.01,
-  });
-
   const mapRef = useRef(null);
+  const isFocused = useIsFocused();
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [orderStatus, setOrderStatus] = useState(null);
+  const [region, setRegion] = useState(null);
 
+  useEffect(() => {
+    const fetchOrderStatus = async () => {
+      try {
+        const status = await getOrderStatus();
+        setOrderStatus(status);
+        setRegion({
+          latitude: status.deliveryLocation.lat,
+          longitude: status.deliveryLocation.lng,
+          latitudeDelta: 0.01,
+          longitudeDelta: 0.01,
+        });
+
+        if (status.status === "COMPLETED" && interval) {
+          clearInterval(interval);
+        }
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    if (!isFocused) {return};
+    let interval = null;
+    fetchOrderStatus();
+    interval = setInterval(fetchOrderStatus, 5000);
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isFocused]);
+
+  if (error){
+    return (
+      <View style={styles.loadingIndicator}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
+
+  if (isLoading || !orderStatus || !region) {
+    return (
+      <View style={styles.loadingIndicator}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
+
+  // Aggiorna lo stato della regione ogni volta che l'utente muove la mappa
   const handleMapRegionChange = (newRegion) => {
+    console.log('Map region changed to:', newRegion);
     setRegion(newRegion);
   };
 
+  // Funzione per lo zoom-in: riduce i delta per una visione più ravvicinata
   const zoomIn = () => {
-    setRegion((prevRegion) => ({
-      ...prevRegion,
-      latitudeDelta: Math.max(prevRegion.latitudeDelta / 2, 0.002),
-      longitudeDelta: Math.max(prevRegion.longitudeDelta / 2, 0.002),
-    }));
+   // Calcola i nuovi delta
+   const newLatitudeDelta = region.latitudeDelta / 2;
+   const newLongitudeDelta = region.longitudeDelta / 2;
+   
+   // Se i nuovi delta sono sotto il limite minimo, non aggiornare
+   if (newLatitudeDelta < 0.001 || newLongitudeDelta < 0.001) {
+     console.log("Zoom in raggiunto il limite minimo.");
+     return;
+   }
+   
+   const newRegion = {
+     ...region,
+     latitudeDelta: newLatitudeDelta,
+     longitudeDelta: newLongitudeDelta,
+   };
+   setRegion(newRegion);
+   mapRef.current.animateToRegion(newRegion, 300);
   };
 
+  // Funzione per lo zoom-out: aumenta i delta per una visione più ampia
   const zoomOut = () => {
-    setRegion((prevRegion) => ({
-      ...prevRegion,
-      latitudeDelta: Math.min(prevRegion.latitudeDelta * 2, 1),
-      longitudeDelta: Math.min(prevRegion.longitudeDelta * 2, 1),
-    }));
+    if (mapRef.current) {
+      // Calcola i nuovi delta
+      const newLatitudeDelta = region.latitudeDelta * 2;
+      const newLongitudeDelta = region.longitudeDelta * 2;
+      
+      // Se i nuovi delta superano il limite massimo, non aggiornare
+      if (newLatitudeDelta > 100 || newLongitudeDelta > 100) {
+        console.log("Zoom out raggiunto il limite massimo.");
+        return;
+      }
+      
+      const newRegion = {
+        ...region,
+        latitudeDelta: newLatitudeDelta,
+        longitudeDelta: newLongitudeDelta,
+      };
+      setRegion(newRegion);
+      mapRef.current.animateToRegion(newRegion, 300);
+    }
   };
 
+  // Funzione per centrare la mappa sulla posizione attuale del drone
   const centerMapOnDrone = () => {
-    mapRef.current.animateToRegion({
-      ...droneLocation,
-      latitudeDelta: region.latitudeDelta,
-      longitudeDelta: region.longitudeDelta,
-    }, 1000); // Animazione per centrare sulla posizione del drone
+    if (mapRef.current && orderStatus.currentPosition) {
+      const newRegion = {
+        latitude: orderStatus.currentPosition.lat,
+        longitude: orderStatus.currentPosition.lng,
+        latitudeDelta: region.latitudeDelta,  
+        longitudeDelta: region.longitudeDelta,
+      };
+      setRegion(newRegion);
+      mapRef.current.animateToRegion(newRegion, 300);
+    }
+  };  
+
+  // Funzione per stimare il tempo di consegna
+  const getEstimatedTime = () => {
+    const now = new Date();
+    const expectedTime = new Date(orderStatus.expectedDeliveryTimestamp);
+    const diffMinutes = Math.max(0, Math.round((expectedTime - now) / 60000));
+    return `${diffMinutes} minuti`;
   };
 
   // Linea d'aria tra il drone e la destinazione (utente)
-  const pathCoordinates = [droneLocation, deliveryLocation];
+  const pathCoordinates = [
+    {
+      latitude: orderStatus.currentPosition.lat,
+      longitude: orderStatus.currentPosition.lng,
+    },
+    {
+      latitude: orderStatus.deliveryLocation.lat,
+      longitude: orderStatus.deliveryLocation.lng,
+    }
+  ];
+
+  if (isLoading || !orderStatus || !region) {
+    return (
+      <View style={styles.loadingIndicator}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
   return (
     <View style={styles.container}>
       {/* Stato dell'ordine */}
       <View style={styles.header}>
         <Text style={styles.statusText}>
-          {orderStatus === 'in consegna' ? 'Ordine in Consegna' : 'Ordine Consegnato'}
+          {orderStatus.status === 'ON_DELIVERY' ? 'Ordine in Consegna' : 'Ordine Consegnato'}
         </Text>
         <View style={styles.separator} />
       </View>
@@ -71,20 +175,20 @@ const OrderView = () => {
           onRegionChangeComplete={handleMapRegionChange}
         >
           <Marker
-            coordinate={restaurantLocation}
-            title="Ristorante"
-            description="Punto di partenza"
-            pinColor="green"
-          />
-          <Marker
-            coordinate={deliveryLocation}
+            coordinate={{
+              latitude: orderStatus.deliveryLocation.lat,
+              longitude: orderStatus.deliveryLocation.lng,
+            }}
             title="Consegna"
             description="Destinazione finale"
             pinColor="red"
           />
-          {orderStatus === 'in consegna' && (
+          {orderStatus.status === 'ON_DELIVERY' && (
             <Marker
-              coordinate={droneLocation}
+              coordinate={{
+                latitude: orderStatus.currentPosition.lat,
+                longitude: orderStatus.currentPosition.lng,
+              }}
               title="Drone"
               description="Posizione attuale"
               pinColor="blue"
@@ -92,7 +196,7 @@ const OrderView = () => {
           )}
 
           {/* Linea d'aria solo tra il drone e la destinazione */}
-          {orderStatus === 'in consegna' && (
+          {orderStatus.status === 'ON_DELIVERY' && (
             <Polyline
               coordinates={pathCoordinates}
               strokeColor="#0000FF"
@@ -102,19 +206,17 @@ const OrderView = () => {
         </MapView>
 
         {/* Sezione di controllo unificata */}
-        {orderStatus === 'in consegna' && (
-          <View style={styles.controlPanel}>
-            <TouchableOpacity style={styles.zoomButton} onPress={zoomIn}>
-              <Text style={styles.buttonText}>+</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.zoomButton} onPress={zoomOut}>
-              <Text style={styles.buttonText}>-</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.centerButton} onPress={centerMapOnDrone}>
-              <Text style={styles.buttonText}>Centra</Text>
-            </TouchableOpacity>
-          </View>
-        )}
+        <View style={styles.controlPanel}>
+          <TouchableOpacity style={styles.zoomButton} onPress={zoomIn}>
+            <Text style={styles.buttonText}>+</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.zoomButton} onPress={zoomOut}>
+            <Text style={styles.buttonText}>-</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.centerButton} onPress={centerMapOnDrone}>
+            <Text style={styles.buttonText}>Centra</Text>
+          </TouchableOpacity>
+        </View>
       </Card>
 
       {/* Dettagli Ordine */}
@@ -122,24 +224,22 @@ const OrderView = () => {
         <Card.Content>
           <Title style={styles.sectionTitle}>Dettagli Ordine</Title>
           <View style={styles.dataRow}>
-            <Paragraph style={styles.label}>Menù:</Paragraph>
-            <Paragraph style={styles.value}>Pizza Margherita</Paragraph>
-          </View>
-          <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Stato:</Paragraph>
             <Paragraph style={styles.value}>
-              {orderStatus === 'in consegna' ? 'In Consegna' : 'Consegnato'}
+              {orderStatus.status === 'ON_DELIVERY' ? 'In Consegna' : 'Consegnato'}
             </Paragraph>
           </View>
-          {orderStatus === 'in consegna' ? (
+          {orderStatus.status === 'ON_DELIVERY' ? (
             <View style={styles.dataRow}>
               <Paragraph style={styles.label}>Tempo stimato:</Paragraph>
-              <Paragraph style={styles.value}>15 minuti</Paragraph>
+              <Paragraph style={styles.value}>{getEstimatedTime()}</Paragraph>
             </View>
           ) : (
             <View style={styles.dataRow}>
               <Paragraph style={styles.label}>Ora di consegna:</Paragraph>
-              <Paragraph style={styles.value}>12:30</Paragraph>
+              <Paragraph style={styles.value}>
+                {new Date(orderStatus.deliveryTimestamp).toLocaleTimeString()}
+              </Paragraph>
             </View>
           )}
         </Card.Content>
@@ -149,68 +249,23 @@ const OrderView = () => {
 };
 
 const { height } = Dimensions.get('window'); // Altezza dello schermo
-
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#f5f5f5', paddingHorizontal: 16, paddingVertical: 24 },
   header: { alignItems: 'center', marginBottom: 8 },
-  statusText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#333',
-    textAlign: 'center',
-    marginBottom: 8,
-  },
-  separator: {
-    width: '50%',
-    height: 2,
-    backgroundColor: '#6554a4',
-    borderRadius: 4,
-    marginBottom: 16,
-  },
+  statusText: { fontSize: 20, fontWeight: 'bold', color: '#333', textAlign: 'center', marginBottom: 8 },
+  separator: { width: '50%', height: 2, backgroundColor: '#6554a4', borderRadius: 4, marginBottom: 16 },
   card: { marginBottom: 16, borderRadius: 8, elevation: 2, backgroundColor: '#fff' },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  map: {
-    width: '100%',
-    height: height * 0.4,
-    borderRadius: 8, 
-  },
+  sectionTitle: { fontSize: 18, fontWeight: 'bold', color: '#333', marginBottom: 8, textAlign: 'center' },
+  map: { width: '100%', height: height * 0.4, borderRadius: 8 },
   dataRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
   label: { fontSize: 16, color: '#555' },
   value: { fontSize: 16, fontWeight: 'bold', color: '#000' },
-  controlPanel: {
-    position: 'absolute',
-    bottom: 8,
-    right: 16,
-    flexDirection: 'row',
-    zIndex: 1,
-  },
-  zoomButton: {
-    backgroundColor: 'rgba(255, 255, 255, 1)',
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    marginRight: 8,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  centerButton: {
-    backgroundColor: 'rgba(255, 255, 255, 1)',
-    paddingHorizontal: 10,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  buttonText: {
-    color: '#333',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
+  controlPanel: { position: 'absolute', bottom: 8, right: 16, flexDirection: 'row', zIndex: 1 },
+  zoomButton: { backgroundColor: 'rgba(255, 255, 255, 1)', paddingVertical: 6, paddingHorizontal: 10, borderRadius: 20, marginRight: 8, alignItems: 'center', justifyContent: 'center' },
+  centerButton: { backgroundColor: 'rgba(255, 255, 255, 1)', paddingHorizontal: 10, borderRadius: 20, alignItems: 'center', justifyContent: 'center' },
+  buttonText: { color: '#333', fontSize: 14, fontWeight: 'bold' },
+  loadingIndicator: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { color: 'red', textAlign: 'center', fontSize: 16, marginTop: 20 },
 });
 
 export default OrderView;

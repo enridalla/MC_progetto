@@ -8,13 +8,14 @@ const MenuDetails = ({ route, navigation }) => {
   const { menuDetails, loading, error, order } = useMenuViewModel(menuId);
 
   const handleOrder = async (menuId) => {
-    const success = await order(menuId);
-    if (success) {
-      navigation.navigate('OrderStatus');
+    const result = await order(menuId);
+
+    if (result.success) {
+      Alert.alert('Ordine effettuato', result.message);
     } else {
-      Alert.alert('Errore', 'Si è verificato un errore durante l\'ordine');
+      Alert.alert('Errore', result.message);
     }
-  }
+  };
 
   if (loading) {
     return (
