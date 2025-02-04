@@ -12,19 +12,23 @@ const OrderView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [orderStatus, setOrderStatus] = useState(null);
-  const [region, setRegion] = useState(null);
+  const [center, setCenter] = useState(null);
+  const [zoomLevel, setZoomLevel] = useState(0.01);
 
   useEffect(() => {
+    let interval = null;
+
     const fetchOrderStatus = async () => {
       try {
         const status = await getOrderStatus();
         setOrderStatus(status);
-        setRegion({
-          latitude: status.deliveryLocation.lat,
-          longitude: status.deliveryLocation.lng,
-          latitudeDelta: 0.01,
-          longitudeDelta: 0.01,
-        });
+
+        if (!center) {
+          setCenter({
+            latitude: status.deliveryLocation.lat,
+            longitude: status.deliveryLocation.lng,
+          });
+        }
 
         if (status.status === "COMPLETED" && interval) {
           clearInterval(interval);
@@ -36,17 +40,16 @@ const OrderView = () => {
       }
     };
 
-    if (!isFocused) {return};
-    let interval = null;
+    if (!isFocused) return;
     fetchOrderStatus();
     interval = setInterval(fetchOrderStatus, 5000);
 
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isFocused]);
+  }, [isFocused, center]);
 
-  if (error){
+  if (error) {
     return (
       <View style={styles.loadingIndicator}>
         <Text style={styles.errorText}>{error}</Text>
@@ -54,7 +57,7 @@ const OrderView = () => {
     );
   }
 
-  if (isLoading || !orderStatus || !region) {
+  if (isLoading || !orderStatus || !center) {
     return (
       <View style={styles.loadingIndicator}>
         <Text>Loading...</Text>
@@ -62,70 +65,62 @@ const OrderView = () => {
     );
   }
 
-
-  // Aggiorna lo stato della regione ogni volta che l'utente muove la mappa
-  const handleMapRegionChange = (newRegion) => {
-    console.log('Map region changed to:', newRegion);
-    setRegion(newRegion);
+  // Funzione per calcolare la regione corrente da passare a MapView e animateToRegion
+  const currentRegion = {
+    ...center,
+    latitudeDelta: zoomLevel,
+    longitudeDelta: zoomLevel,
   };
 
-  // Funzione per lo zoom-in: riduce i delta per una visione più ravvicinata
+  // Funzione per lo zoom-in
   const zoomIn = () => {
-   // Calcola i nuovi delta
-   const newLatitudeDelta = region.latitudeDelta / 2;
-   const newLongitudeDelta = region.longitudeDelta / 2;
-   
-   // Se i nuovi delta sono sotto il limite minimo, non aggiornare
-   if (newLatitudeDelta < 0.001 || newLongitudeDelta < 0.001) {
-     console.log("Zoom in raggiunto il limite minimo.");
-     return;
-   }
-   
-   const newRegion = {
-     ...region,
-     latitudeDelta: newLatitudeDelta,
-     longitudeDelta: newLongitudeDelta,
-   };
-   setRegion(newRegion);
-   mapRef.current.animateToRegion(newRegion, 300);
+    const newZoom = zoomLevel / 2;
+    if (newZoom < 0.001) {
+      console.log("Zoom in raggiunto il limite minimo.");
+      return;
+    }
+    setZoomLevel(newZoom);
+    if (mapRef.current) {
+      mapRef.current.animateToRegion({ ...center, latitudeDelta: newZoom, longitudeDelta: newZoom }, 300);
+    }
   };
 
-  // Funzione per lo zoom-out: aumenta i delta per una visione più ampia
+  // Funzione per lo zoom-out
   const zoomOut = () => {
+    const newZoom = zoomLevel * 2;
+    if (newZoom > 100) {
+      console.log("Zoom out raggiunto il limite massimo.");
+      return;
+    }
+    setZoomLevel(newZoom);
     if (mapRef.current) {
-      // Calcola i nuovi delta
-      const newLatitudeDelta = region.latitudeDelta * 2;
-      const newLongitudeDelta = region.longitudeDelta * 2;
-      
-      // Se i nuovi delta superano il limite massimo, non aggiornare
-      if (newLatitudeDelta > 100 || newLongitudeDelta > 100) {
-        console.log("Zoom out raggiunto il limite massimo.");
-        return;
-      }
-      
-      const newRegion = {
-        ...region,
-        latitudeDelta: newLatitudeDelta,
-        longitudeDelta: newLongitudeDelta,
-      };
-      setRegion(newRegion);
-      mapRef.current.animateToRegion(newRegion, 300);
+      mapRef.current.animateToRegion({ ...center, latitudeDelta: newZoom, longitudeDelta: newZoom }, 300);
     }
   };
 
   // Funzione per centrare la mappa sulla posizione attuale del drone
   const centerMapOnDrone = () => {
-    if (mapRef.current && orderStatus.currentPosition) {
-      const newRegion = {
-        latitude: orderStatus.currentPosition.lat,
-        longitude: orderStatus.currentPosition.lng,
-        latitudeDelta: region.latitudeDelta,  
-        longitudeDelta: region.longitudeDelta,
-      };
-      setRegion(newRegion);
-      mapRef.current.animateToRegion(newRegion, 300);
+    if (
+      mapRef.current &&
+      orderStatus.currentPosition &&
+      orderStatus.deliveryLocation
+    ) {
+      const positions = [
+        {
+          latitude: orderStatus.currentPosition.lat,
+          longitude: orderStatus.currentPosition.lng,
+        },
+        {
+          latitude: orderStatus.deliveryLocation.lat,
+          longitude: orderStatus.deliveryLocation.lng,
+        },
+      ];
+      mapRef.current.fitToCoordinates(positions, {
+        edgePadding: { top: 50, right: 50, bottom: 50, left: 50 },
+        animated: true,
+      });
     }
-  };  
+  };
 
   // Funzione per stimare il tempo di consegna
   const getEstimatedTime = () => {
@@ -147,14 +142,6 @@ const OrderView = () => {
     }
   ];
 
-  if (isLoading || !orderStatus || !region) {
-    return (
-      <View style={styles.loadingIndicator}>
-        <Text>Loading...</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
       {/* Stato dell'ordine */}
@@ -171,8 +158,9 @@ const OrderView = () => {
         <MapView
           ref={mapRef}
           style={styles.map}
-          region={region}
-          onRegionChangeComplete={handleMapRegionChange}
+          region={currentRegion}
+          // Rimuoviamo onRegionChangeComplete per evitare conflitti con animateToRegion
+          // onRegionChangeComplete={(newRegion) => setCenter({latitude: newRegion.latitude, longitude: newRegion.longitude})}
         >
           <Marker
             coordinate={{
