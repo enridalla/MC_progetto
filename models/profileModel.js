@@ -149,8 +149,9 @@ export const getUserData = async () => {
       console.log('Data saved successfully to server');
 
       AsyncStorage.setItem('profile', JSON.stringify(updatedData));
+      profile = updatedData;
+      console.log('Data saved successfully to storage and memory');
 
-      console.log('Data saved successfully to storage');
     } catch (error) {
       console.log('Error saving user data:', error);
       throw error;
