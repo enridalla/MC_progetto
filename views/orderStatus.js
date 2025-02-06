@@ -3,7 +3,6 @@ import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-nati
 import { Card, Title, Paragraph } from 'react-native-paper';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import { useIsFocused } from '@react-navigation/native';
-
 import { getOrderStatus } from '../models/orderModel';
 
 const OrderView = () => {
@@ -12,7 +11,6 @@ const OrderView = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const [orderStatus, setOrderStatus] = useState(null);
-  const [center, setCenter] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(0.01);
 
   useEffect(() => {
@@ -22,13 +20,6 @@ const OrderView = () => {
       try {
         const status = await getOrderStatus();
         setOrderStatus(status);
-
-        if (!center) {
-          setCenter({
-            latitude: status.deliveryLocation.lat,
-            longitude: status.deliveryLocation.lng,
-          });
-        }
 
         if (status.status === "COMPLETED" && interval) {
           clearInterval(interval);
@@ -47,7 +38,7 @@ const OrderView = () => {
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [isFocused, center]);
+  }, [isFocused]);
 
   if (error) {
     return (
@@ -57,7 +48,7 @@ const OrderView = () => {
     );
   }
 
-  if (isLoading || !orderStatus || !center) {
+  if (isLoading || !orderStatus) {
     return (
       <View style={styles.loadingIndicator}>
         <Text>Loading...</Text>
@@ -67,7 +58,8 @@ const OrderView = () => {
 
   // Funzione per calcolare la regione corrente da passare a MapView e animateToRegion
   const currentRegion = {
-    ...center,
+    latitude: orderStatus.deliveryLocation.lat,
+    longitude: orderStatus.deliveryLocation.lng,
     latitudeDelta: zoomLevel,
     longitudeDelta: zoomLevel,
   };
@@ -81,7 +73,7 @@ const OrderView = () => {
     }
     setZoomLevel(newZoom);
     if (mapRef.current) {
-      mapRef.current.animateToRegion({ ...center, latitudeDelta: newZoom, longitudeDelta: newZoom }, 300);
+      setZoomLevel((prevZoom) => Math.max(prevZoom / 2, 0.002));
     }
   };
 
@@ -94,17 +86,24 @@ const OrderView = () => {
     }
     setZoomLevel(newZoom);
     if (mapRef.current) {
-      mapRef.current.animateToRegion({ ...center, latitudeDelta: newZoom, longitudeDelta: newZoom }, 300);
+      setZoomLevel((prevZoom) => Math.min(prevZoom * 2, 1));
     }
   };
 
   // Funzione per centrare la mappa sulla posizione attuale del drone
-  const centerMapOnDrone = () => {
-    if (
-      mapRef.current &&
-      orderStatus.currentPosition &&
-      orderStatus.deliveryLocation
-    ) {
+  const centerMap = () => {
+    if (!mapRef.current || !orderStatus) return;
+  
+    if (orderStatus.status === 'COMPLETED') {
+      // Centra sulla posizione di consegna mantenendo lo zoom attuale
+      mapRef.current.animateToRegion({
+        latitude: orderStatus.deliveryLocation.lat,
+        longitude: orderStatus.deliveryLocation.lng,
+        latitudeDelta: zoomLevel,
+        longitudeDelta: zoomLevel,
+      }, 300);
+    } else if (orderStatus.status === 'ON_DELIVERY' && orderStatus.currentPosition) {
+      // Centra sul percorso tra il drone e la destinazione
       const positions = [
         {
           latitude: orderStatus.currentPosition.lat,
@@ -201,7 +200,7 @@ const OrderView = () => {
           <TouchableOpacity style={styles.zoomButton} onPress={zoomOut}>
             <Text style={styles.buttonText}>-</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.centerButton} onPress={centerMapOnDrone}>
+          <TouchableOpacity style={styles.centerButton} onPress={centerMap}>
             <Text style={styles.buttonText}>Centra</Text>
           </TouchableOpacity>
         </View>
