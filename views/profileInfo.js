@@ -1,10 +1,17 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { Card, Title, Button, Paragraph, Avatar } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
+import { useFocusEffect } from '@react-navigation/native';
 
 const ProfileInfoScreen = ({ navigation }) => {
-  const { userData, loading, error } = useProfileViewModel();
+  const { userData, lastOrder, loading, error, refreshProfileData } = useProfileViewModel();
+
+  useFocusEffect(
+    useCallback(() => {
+      refreshProfileData(); // chiama la funzione del viewmodel per ricaricare i dati
+    }, [])
+  );
 
   if (loading) {
     return (
@@ -83,6 +90,21 @@ const ProfileInfoScreen = ({ navigation }) => {
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>CVV:</Paragraph>
             <Paragraph style={styles.value}>{userData.cardCVV || ""}</Paragraph>
+          </View>
+        </Card.Content>
+      </Card>
+
+      {/* Dati ultimo ordine */}
+      <Card style={styles.card}>
+        <Card.Content>
+          <Title style={styles.sectionTitle}>Ultimo ordine:</Title>
+          <View style={styles.dataRow}>
+            <Paragraph style={styles.label}>Nome:</Paragraph>
+            <Paragraph style={styles.value}>{lastOrder.name || ""}</Paragraph>
+          </View>
+          <View style={styles.dataRow}>
+            <Paragraph style={styles.label}>Prezzo:</Paragraph>
+            <Paragraph style={styles.value}>{lastOrder.price || ""}€</Paragraph>
           </View>
         </Card.Content>
       </Card>

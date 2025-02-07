@@ -9,10 +9,7 @@ const ProfileEditScreen = ({ navigation }) => {
   const handleSave = async () => {
     const success = await updateUserData();
     if (success) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'ProfileInfo' }],
-      });
+      navigation.goBack();
     } else {
       Alert.alert('Errore', 'Si è verificato un errore durante il salvataggio dei dati');
     }

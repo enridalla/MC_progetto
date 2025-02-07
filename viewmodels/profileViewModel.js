@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
 import { getUserData, saveUserData } from '../models/profileModel'; 
+import { getLastOrder } from '../models/orderModel';
 
 const useProfileViewModel = (uid) => {
   const [userData, setUserData] = useState(null);
   const [formData, setFormData] = useState(null);
+  const [lastOrder, setLastOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -23,9 +25,28 @@ const useProfileViewModel = (uid) => {
     }
   };
 
+  const loadLastOrder = async () => {
+    console.log('Loading last order...');
+    try {
+      const order = await getLastOrder();
+      setLastOrder(order);
+    } catch (err) {
+      console.error('Error loading last order:', err.message);
+      setError(err.message || 'Errore durante il caricamento dell\'ultimo ordine');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {  
     loadUserData();
-  }, [userData]); 
+    loadLastOrder();
+  }, []); 
+
+  const refreshProfileData = async () => {
+    await loadUserData();
+    await loadLastOrder();
+  };
 
   // Metodo per aggiornare i campi del form
   const updateFormData = (field, value) => {
@@ -58,10 +79,12 @@ const useProfileViewModel = (uid) => {
   return {
     userData,
     formData,
+    lastOrder,
     loading,
     error,
     updateFormData,
     updateUserData,
+    refreshProfileData,
   };
 };
 
