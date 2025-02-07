@@ -1,9 +1,10 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { getSID, getUID } from './profileModel';
+import { getSID } from './profileModel';
 import { getCurrentPosition } from './locationModel'; 
 
 
 const BASE_URL = 'https://develop.ewlab.di.unimi.it/mc/2425'; 
+let lastOrder = null;
 
 export const getOID = async () => {
   try {
@@ -89,5 +90,38 @@ export const buyMenu = async (menuId) => {
   } catch (error) {
     console.error('[buyMenu] Error during menu purchase:', error);
     return { success: false, message: 'Errore durante l\'acquisto del menù. Riprova più tardi.' };
+  }
+};
+
+export const getLastOrder = async () => {
+  if (lastOrder) {
+    return lastOrder;
+  }
+
+  try {
+    order = await AsyncStorage.getItem('lastOrder');
+    if(order) {
+      console.log('[getLastOrder] Retrieved last order');
+      lastOrder = JSON.parse(order);
+      return lastOrder;
+    } else {
+      console.log('[getLastOrder] No last order found in storage.');
+      return
+    }
+  } catch (error) {
+    console.log('[getLastOrder] Error retrieving last order:', error);
+  }
+};
+
+export const saveLastOrder = async (order) => {
+  try {
+    if (!order) {
+      throw new Error('Invalid order: cannot be null or undefined.');
+    }
+    await AsyncStorage.setItem('lastOrder', JSON.stringify(order));
+    lastOrder = order;
+    console.log('[setLastOrder] Last order successfully saved');
+  } catch (error) {
+    console.log('[setLastOrder] Error saving last order:', error);
   }
 };

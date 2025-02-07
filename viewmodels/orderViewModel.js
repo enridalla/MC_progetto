@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { useIsFocused } from '@react-navigation/native';
-import { getOrderStatus } from '../models/orderModel';
+import { getOrderStatus, getLastOrder } from '../models/orderModel';
 
 const useOrderViewModel = () => {
   const mapRef = useRef(null);
   const isFocused = useIsFocused();
   const [orderStatus, setOrderStatus] = useState(null);
+  const [lastOrder, setLastOrder] = useState(null);
   const [zoomLevel, setZoomLevel] = useState(0.01);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -17,6 +18,9 @@ const useOrderViewModel = () => {
       try {
         const status = await getOrderStatus();
         setOrderStatus(status);
+
+        const order = await getLastOrder();
+        setLastOrder(order);
 
         if (status.status === "COMPLETED" && interval) {
           clearInterval(interval);
@@ -127,7 +131,7 @@ const pathCoordinates = orderStatus && orderStatus.currentPosition && orderStatu
   }
 ] : [];
 
-  return { isLoading, error, orderStatus, zoomIn, zoomOut, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef };
+  return { isLoading, error, orderStatus, lastOrder, setLastOrder, zoomIn, zoomOut, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef };
 };
 
 export default useOrderViewModel;

@@ -6,7 +6,7 @@ import useOrderViewModel from '../viewmodels/orderViewModel';
 
 
 const OrderView = () => {
-  const { isLoading, error, orderStatus, zoomIn, zoomOut, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef } = useOrderViewModel();
+  const { isLoading, error, orderStatus, lastOrder, zoomIn, zoomOut, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef } = useOrderViewModel();
 
 
   if (error) {
@@ -92,6 +92,12 @@ const OrderView = () => {
       <Card style={styles.card}>
         <Card.Content>
           <Title style={styles.sectionTitle}>Dettagli Ordine</Title>
+          <View style={styles.dataRow}>
+            <Paragraph style={styles.label}>Hai ordinato:</Paragraph>
+            <Paragraph style={styles.value}>
+              {lastOrder?.name} ({lastOrder?.price}€)
+            </Paragraph>
+          </View>
           <View style={styles.dataRow}>
             <Paragraph style={styles.label}>Stato:</Paragraph>
             <Paragraph style={styles.value}>

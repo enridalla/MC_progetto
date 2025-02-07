@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { fetchMenuDetails, fetchMenus } from '../models/menuModel';
 import dbController from '../models/DBController';
-import { buyMenu } from '../models/orderModel';
+import { buyMenu, saveLastOrder } from '../models/orderModel';
 import { getUserData } from '../models/profileModel';
 
 const useMenuViewModel = (menuId = null) => {
@@ -71,6 +71,8 @@ const useMenuViewModel = (menuId = null) => {
       if (!orderResponse.success) {
         return { success: false, message: orderResponse.message || 'Errore nell\'effettuare l\'ordine. Riprova più tardi.' };
       }
+
+      await saveLastOrder(menuDetails);
   
       return { success: true, message: 'Ordine effettuato con successo!' };
     } catch (err) {
@@ -78,8 +80,6 @@ const useMenuViewModel = (menuId = null) => {
       return { success: false, message: 'Si è verificato un errore. Riprova più tardi.' };
     }
   };
-  
-  
 
   return { menus, menuDetails, loading, error, dbController, order };
 };
