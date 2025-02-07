@@ -67,77 +67,20 @@ const MenuDetails = ({ route, navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 16,
-    backgroundColor: '#f5f5f5',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    marginBottom: 8,
-    color: '#041c66',
-  },
-  price: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#0799ED',
-    marginBottom: 12,
-  },
-  longDescription: {
-    fontSize: 16,
-    color: '#555',
-    marginBottom: 16,
-  },
-  image: {
-    width: '100%',
-    height: 200,
-    resizeMode: 'cover',
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  noImage: {
-    height: 200,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#ddd',
-    borderRadius: 12,
-    marginBottom: 16,
-  },
-  noImageText: {
-    color: '#555',
-    fontStyle: 'italic',
-  },
-  button: {
-    marginTop: 20,
-  },
-  loading: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  error: {
-    flex:1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    fontSize: 16,
-    color: 'red',
-    fontWeight: '600',
-  },
-  noData: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  noDataText: {
-    fontSize: 16,
-    fontStyle: 'italic',
-  },
+  container: { padding: 16, backgroundColor: '#f5f5f5' },
+  title: { fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: '#041c66' },
+  price: { fontSize: 18, fontWeight: '600', color: '#0799ED', marginBottom: 12 },
+  longDescription: { fontSize: 16, color: '#555', marginBottom: 16 },
+  image: { width: '100%', height: 200, resizeMode: 'cover', borderRadius: 12, marginBottom: 16 },
+  noImage: { height: 200, justifyContent: 'center', alignItems: 'center', backgroundColor: '#ddd', borderRadius: 12, marginBottom: 16 },
+  noImageText: { color: '#555', fontStyle: 'italic' },
+  button: { marginTop: 20 },
+  loading: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  loadingText: { fontSize: 16, fontWeight: '600' },
+  error: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  errorText: { fontSize: 16, color: 'red', fontWeight: '600' },
+  noData: { flex: 1, justifyContent: 'center', alignItems: 'center' },
+  noDataText: { fontSize: 16, fontStyle: 'italic' },
 });
 
 export default MenuDetails;
