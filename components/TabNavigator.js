@@ -29,7 +29,7 @@ const TabNavigator = () => (
     })}
   >
     <Tab.Screen name="Menu" component={MenuStackNavigator} options={{ title:'Menù', headerShown: false }} />
-    <Tab.Screen name="Order" component={OrderStatus} options={{ title: 'Stato Ordine' }} />
+    <Tab.Screen name="Order" component={OrderStatus} options={{ title: 'Ordine' }} />
     <Tab.Screen name="Profile" component={ProfileStackNavigator} options={{ title:'Profilo', headerShown: false }} />
   </Tab.Navigator>
 );
