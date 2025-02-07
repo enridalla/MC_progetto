@@ -95,19 +95,28 @@ const ProfileInfoScreen = ({ navigation }) => {
       </Card>
 
       {/* Dati ultimo ordine */}
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.sectionTitle}>Ultimo ordine:</Title>
-          <View style={styles.dataRow}>
-            <Paragraph style={styles.label}>Nome:</Paragraph>
-            <Paragraph style={styles.value}>{lastOrder.name || ""}</Paragraph>
-          </View>
-          <View style={styles.dataRow}>
-            <Paragraph style={styles.label}>Prezzo:</Paragraph>
-            <Paragraph style={styles.value}>{lastOrder.price || ""}€</Paragraph>
-          </View>
-        </Card.Content>
-      </Card>
+      {lastOrder ? (
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.sectionTitle}>Ultimo ordine:</Title>
+            <View style={styles.dataRow}>
+              <Paragraph style={styles.label}>Nome:</Paragraph>
+              <Paragraph style={styles.value}>{lastOrder.name || ""}</Paragraph>
+            </View>
+            <View style={styles.dataRow}>
+              <Paragraph style={styles.label}>Prezzo:</Paragraph>
+              <Paragraph style={styles.value}>{lastOrder.price || ""}€</Paragraph>
+            </View>
+          </Card.Content>
+        </Card>
+      ) : (
+        <Card style={styles.card}>
+          <Card.Content>
+            <Title style={styles.sectionTitle}>Ultimo ordine:</Title>
+            <Paragraph style={styles.label}>Nessun ordine effettuato</Paragraph>
+          </Card.Content>
+        </Card>
+      )}
 
       {/* Pulsante per Modificare il Profilo */}
       <Button

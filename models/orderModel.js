@@ -88,7 +88,7 @@ export const buyMenu = async (menuId) => {
 
     return { success: true, message: 'Menù acquistato con successo' };
   } catch (error) {
-    console.error('[buyMenu] Error during menu purchase:', error);
+    console.log('[buyMenu] Error during menu purchase:', error);
     return { success: false, message: 'Errore durante l\'acquisto del menù. Riprova più tardi.' };
   }
 };

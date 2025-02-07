@@ -16,11 +16,15 @@ const useOrderViewModel = () => {
 
     const fetchOrderStatus = async () => {
       try {
+        const order = await getLastOrder();
+        if (!order) {
+          setIsLoading(false);
+          return;
+        }
+        setLastOrder(order);
+
         const status = await getOrderStatus();
         setOrderStatus(status);
-
-        const order = await getLastOrder();
-        setLastOrder(order);
 
         if (status.status === "COMPLETED" && interval) {
           clearInterval(interval);

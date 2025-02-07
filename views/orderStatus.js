@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-native';
-import { Card, Title, Paragraph } from 'react-native-paper';
+import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import useOrderViewModel from '../viewmodels/orderViewModel';
 
 
-const OrderView = () => {
+const OrderView = ({ navigation }) => {
   const { isLoading, error, orderStatus, lastOrder, zoomIn, zoomOut, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef } = useOrderViewModel();
 
 
@@ -17,13 +17,40 @@ const OrderView = () => {
     );
   }
 
-  if (isLoading || !orderStatus) {
+  if (isLoading) {
     return (
       <View style={styles.loadingIndicator}>
         <Text>Loading...</Text>
       </View>
     );
   }
+
+  if (!lastOrder) {
+    return (
+      <View style={styles.emptyContainer}>
+          <Title style={styles.sectionTitle}>Nessun Ordine Effettuato</Title>
+          <Paragraph style={styles.paragraph}>
+            Al momento non hai ancora effettuato nessun ordine. Esplora il nostro menu e inizia a ordinare i tuoi piatti preferiti!
+          </Paragraph>
+          <Button
+            mode="contained"
+            onPress={() => navigation.navigate('Menu')}
+            style={styles.button}
+          >
+            Vai al Menu
+          </Button>
+    </View>
+    );
+  }
+
+  if (!orderStatus) {
+    return (
+      <View style={styles.loadingIndicator}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
+
 
   return (
     <View style={styles.container}>
@@ -141,6 +168,11 @@ const styles = StyleSheet.create({
   buttonText: { color: '#333', fontSize: 14, fontWeight: 'bold' },
   loadingIndicator: { flex: 1, justifyContent: 'center', alignItems: 'center' },
   errorText: { color: 'red', textAlign: 'center', fontSize: 16, marginTop: 20 },
+  sectionTitle: { fontSize: 20, fontWeight: 'bold', color: '#333', textAlign: 'center', marginBottom: 12,},
+  paragraph: { fontSize: 16, color: '#555', textAlign: 'center', marginBottom: 16, },
+  button: { alignSelf: 'center', },
+  emptyContainer: { flex: 1, backgroundColor: '#f5f5f5', paddingHorizontal: 16, paddingVertical: 24, justifyContent: 'center', alignItems: 'center', },
+
 });
 
 export default OrderView;
