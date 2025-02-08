@@ -91,6 +91,17 @@ const OrderView = ({ navigation }) => {
             />
           )}
 
+        {orderStatus.status === 'ON_DELIVERY' && (
+            <Marker
+              coordinate={{
+                latitude: lastOrder.location.lat,
+                longitude: lastOrder.location.lng,
+              }}
+              title="Ristorante"
+              pinColor="green"
+            />
+          )}
+
           {/* Linea d'aria solo tra il drone e la destinazione */}
           {orderStatus.status === 'ON_DELIVERY' && (
             <Polyline

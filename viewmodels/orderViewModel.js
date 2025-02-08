@@ -45,6 +45,10 @@ const useOrderViewModel = () => {
     };
   }, [isFocused]);
 
+  useEffect(() => {
+    centerMap();
+  }, [orderStatus?.status]);
+
     // Calculate the current region only if orderStatus and deliveryLocation are available
 const currentRegion = orderStatus && orderStatus.deliveryLocation ? {
   latitude: orderStatus.deliveryLocation.lat,
