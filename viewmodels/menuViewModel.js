@@ -62,14 +62,14 @@ const useMenuViewModel = (menuId = null) => {
       // Verifica se l'utente ha completato il profilo
       const userData = await getUserData();
       if (!userData) {
-        return { success: false, message: 'Completa il profilo per effettuare un ordine.' };
+        return { success: false, title: 'Profilo incompleto', message: 'Completa il profilo per effettuare un ordine.' };
       }
   
       // Effettua l'ordine
       const orderResponse = await buyMenu(menuId);
       console.log('Order response:', orderResponse);
       if (!orderResponse.success) {
-        return { success: false, message: orderResponse.message || 'Errore nell\'effettuare l\'ordine. Riprova più tardi.' };
+        return { success: false, title: 'Ordine già in corso', message: orderResponse.message || 'Errore nell\'effettuare l\'ordine. Riprova più tardi.' };
       }
 
       await saveLastOrder(menuDetails);

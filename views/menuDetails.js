@@ -13,7 +13,7 @@ const MenuDetails = ({ route, navigation }) => {
     if (result.success) {
       Alert.alert('Ordine effettuato', result.message);
     } else {
-      Alert.alert('Errore', result.message);
+      Alert.alert(result.title || 'Errore', result.message);
     }
   };
 

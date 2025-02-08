@@ -7,9 +7,15 @@ const ProfileEditScreen = ({ navigation }) => {
   const { formData, updateFormData, updateUserData, loading, error } = useProfileViewModel();
 
   const handleSave = async () => {
-    const success = await updateUserData();
+    const result = await updateUserData();
+    if (result.success) {
+          Alert.alert('Dati aggiornati', result.message);
+          navigation.goBack();
+        } else {
+          Alert.alert(result.title || 'Errore', result.message);
+        }
     if (success) {
-      navigation.goBack();
+      
     } else {
       Alert.alert('Errore', 'Si è verificato un errore durante il salvataggio dei dati');
     }

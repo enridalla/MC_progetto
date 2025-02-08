@@ -56,9 +56,30 @@ const useProfileViewModel = (uid) => {
     }));
   };
 
+  const validateForm = () => {
+    if (formData.firstName && formData.firstName.length > 15 && formData.lastName && formData.lastName.length > 15){
+      return { success: false, title: 'Dati non validi', message: 'Il nome e il cognome non possono contenere più di 15 caratteri'};
+    }
+    if (formData.firstName && formData.firstName.length > 15) {
+      return { success: false, title: 'Dati non validi', message: 'Il nome non può contenere più di 15 caratteri'};
+    }
+    if (formData.lastName && formData.lastName.length > 15) {
+      return { success: false, title: 'Dati non validi', message: 'Il cognome non può contenere più di 15 caratteri'};
+    }
+    if (formData.cardNumber && !/^\d+$/.test(formData.cardNumber)) {
+      return { success: false, title: 'Dati non validi', message: 'Il numero della carta deve contenere solo numeri'};
+    }
+    return { success: true, title: 'Dati non validi', message: 'Dati salvati correttamente'};
+  };
+
   // Metodo per salvare le modifiche ai dati dell'utente
   const updateUserData = async () => {
     try {
+      const validate = validateForm();
+      if (!validate.success) {
+        return validate;
+      }
+
       const updatedUserData = {
         ...formData,
         cardFullName: `${formData.firstName} ${formData.lastName}`,
@@ -69,10 +90,10 @@ const useProfileViewModel = (uid) => {
       await saveUserData(updatedUserData);
       setUserData(updatedUserData); 
       
-      return true;
+      return { success: true, message: 'Dati salvati correttamente'};
     } catch (error) {
       console.error('Error updating user data:', error);
-      return false;
+      return { success: false, message: 'Errore durante il salvataggio dei dati'};
     }
   };
 
