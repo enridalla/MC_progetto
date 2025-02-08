@@ -6,7 +6,7 @@ import useOrderViewModel from '../viewmodels/orderViewModel';
 
 
 const OrderView = ({ navigation }) => {
-  const { isLoading, error, orderStatus, lastOrder, zoomIn, zoomOut, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef } = useOrderViewModel();
+  const { isLoading, error, orderStatus, lastOrder, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef } = useOrderViewModel();
 
 
   if (error) {
@@ -114,12 +114,6 @@ const OrderView = ({ navigation }) => {
 
         {/* Sezione di controllo unificata */}
         <View style={styles.controlPanel}>
-          <TouchableOpacity style={styles.zoomButton} onPress={zoomIn}>
-            <Text style={styles.buttonText}>+</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.zoomButton} onPress={zoomOut}>
-            <Text style={styles.buttonText}>-</Text>
-          </TouchableOpacity>
           <TouchableOpacity style={styles.centerButton} onPress={centerMap}>
             <Text style={styles.buttonText}>Centra</Text>
           </TouchableOpacity>
