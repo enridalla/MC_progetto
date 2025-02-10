@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, StyleSheet, ScrollView, Image, Alert } from 'react-native';
 import { Button } from 'react-native-paper';
 import useMenuViewModel from '../viewmodels/menuViewModel';
+import LoadingIndicator from './loading';
 
 const MenuDetails = ({ route, navigation }) => {
   const { menuId } = route.params;
@@ -18,11 +19,7 @@ const MenuDetails = ({ route, navigation }) => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loading}>
-        <Text style={styles.loadingText}>Caricamento...</Text>
-      </View>
-    );
+    return <LoadingIndicator />
   }
 
   if (error) {

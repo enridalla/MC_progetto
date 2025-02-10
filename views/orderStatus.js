@@ -3,24 +3,20 @@ import { StyleSheet, View, Text, Dimensions, TouchableOpacity } from 'react-nati
 import { Card, Title, Paragraph, Button } from 'react-native-paper';
 import MapView, { Marker, Polyline } from 'react-native-maps';
 import useOrderViewModel from '../viewmodels/orderViewModel';
+import LoadingIndicator from './loading';
 
 
 const OrderView = ({ navigation }) => {
   const { isLoading, error, orderStatus, lastOrder, centerMap, getEstimatedTime, pathCoordinates, currentRegion, mapRef } = useOrderViewModel();
 
+  if (isLoading) {
+    return <LoadingIndicator />;
+  }
 
   if (error) {
     return (
       <View style={styles.loadingIndicator}>
         <Text style={styles.errorText}>{error}</Text>
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingIndicator}>
-        <Text>Loading...</Text>
       </View>
     );
   }

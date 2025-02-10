@@ -2,16 +2,13 @@ import React from 'react';
 import { FlatList, StyleSheet, View, SafeAreaView, Text } from 'react-native';
 import { Card, Title, Paragraph } from 'react-native-paper';
 import useMenuViewModel from '../viewmodels/menuViewModel';
+import LoadingIndicator from './loading';
 
 const MenuList = ({ navigation }) => {
   const { menus, loading, error } = useMenuViewModel();
 
   if (loading) {
-    return (
-      <View style={styles.loading}>
-        <Text style={styles.loadingText}>Caricamento in corso...</Text>
-      </View>
-    );
+    return <LoadingIndicator />;
   }
 
   if (error) {

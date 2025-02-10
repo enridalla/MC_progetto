@@ -2,6 +2,7 @@ import React from 'react';
 import { SafeAreaView, Text, View, TextInput, StyleSheet, Alert, ScrollView } from 'react-native';
 import { Button } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
+import LoadingIndicator from './loading';
 
 const ProfileEditScreen = ({ navigation }) => {
   const { formData, updateFormData, updateUserData, loading, error } = useProfileViewModel();
@@ -22,11 +23,7 @@ const ProfileEditScreen = ({ navigation }) => {
   };
 
   if (loading) {
-    return (
-      <View style={styles.loading}>
-        <Text style={styles.loadingText}>Caricamento in corso...</Text>
-      </View>
-    );
+    return <LoadingIndicator />;
   }
 
   if (error) {

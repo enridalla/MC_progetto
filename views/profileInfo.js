@@ -3,6 +3,7 @@ import { ScrollView, StyleSheet, View, Text } from 'react-native';
 import { Card, Title, Button, Paragraph, Avatar } from 'react-native-paper';
 import useProfileViewModel from '../viewmodels/profileViewModel';
 import { useFocusEffect } from '@react-navigation/native';
+import LoadingIndicator from './loading';
 
 const ProfileInfoScreen = ({ navigation }) => {
   const { userData, lastOrder, loading, error, refreshProfileData } = useProfileViewModel();
@@ -14,11 +15,7 @@ const ProfileInfoScreen = ({ navigation }) => {
   );
 
   if (loading) {
-    return (
-      <View style={styles.loading}>
-        <Text style={styles.loadingText}>Caricamento in corso...</Text>
-      </View>
-    );
+    return <LoadingIndicator />;
   }
 
   if (error) {

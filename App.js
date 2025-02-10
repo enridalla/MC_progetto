@@ -1,10 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Text, View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { NavigationContainer } from '@react-navigation/native';
 import TabNavigator from './components/TabNavigator';
 import { useAppViewModel } from './viewmodels/appViewModel';
+import LoadingIndicator from './views/loading';
 
 const App = () => {
   const {
@@ -19,11 +20,7 @@ const App = () => {
   } = useAppViewModel();
 
   if (isLoading) {
-    return (
-      <View style={styles.centeredContainer}>
-        <ActivityIndicator size="large" color="#007AFF" />
-      </View>
-    );
+    return <LoadingIndicator />
   }
 
   if (showPermissionScreen) {
