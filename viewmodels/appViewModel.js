@@ -10,7 +10,36 @@ export const useAppViewModel = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasLocationPermission, setHasLocationPermission] = useState(null);
   const [showPermissionScreen, setShowPermissionScreen] = useState(false);
-  const [initialRoute, setInitialRoute] = useState('Menu');
+  const [initialNavigationState, setInitialNavigationState] = useState();
+
+  useEffect(() => {
+    initializeUser();
+
+    const initializeApp = async () => {
+      // Load navigation state first
+      const savedState = await loadNavigationState();
+      if (savedState) {
+        setInitialNavigationState(savedState);
+      }
+
+      // Then check permissions
+      try {
+        const accepted = await AsyncStorage.getItem('hasAcceptedPermissionRequest');
+        if (accepted === 'true') {
+          setShowPermissionScreen(false);
+          await fetchLocation();
+        } else {
+          setShowPermissionScreen(true);
+        }
+      } catch (err) {
+        console.error("Error initializing app:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    initializeApp();
+  }, []);
 
   // Funzione per richiedere e ottenere la posizione
   const fetchLocation = async () => {
@@ -30,11 +59,6 @@ export const useAppViewModel = () => {
     }
   };
 
-  const fetchLastPage = async () => {
-    const lastPage = await getLastPage();
-    setInitialRoute(lastPage || 'Menu'); // Imposta la pagina iniziale in base all'ultima pagina visitata, menu se non c'è nulla
-  }
-
   // Inizializzazione dell'utente (ad es. recupero SID)
   const initializeUser = async () => {
     try {
@@ -43,32 +67,6 @@ export const useAppViewModel = () => {
       console.log("Errore durante l'inizializzazione dell'utente:", error);
     }
   };
-
-  useEffect(() => {
-    initializeUser();
-
-    const checkPermissionScreenStatus = async () => {
-      try {
-        // Controlla se l'utente ha già premuto "Continua" in una sessione precedente
-        const accepted = await AsyncStorage.getItem('hasAcceptedPermissionRequest');
-        if (accepted === 'true') {
-          // Se l'utente ha già interagito, procede con il recupero della posizione
-          setShowPermissionScreen(false);
-          fetchLocation();
-        } else {
-          // Altrimenti mostra sempre la schermata dei permessi
-          setShowPermissionScreen(true);
-          setIsLoading(false);
-        }
-      } catch (err) {
-        console.error("Errore nel controllo della schermata di permessi:", err);
-        setIsLoading(false);
-      }
-    };
-
-    checkPermissionScreenStatus();
-    fetchLastPage();
-  }, []);
 
   // Funzione chiamata quando l'utente preme "Continua"
   const handleContinue = async () => {
@@ -79,21 +77,24 @@ export const useAppViewModel = () => {
     fetchLocation();
   };
 
-  const saveLastPage = async (pageName) => {
+  // Modified saveLastPage to save entire navigation state
+  const saveNavigationState = async (state) => {
     try {
-        await AsyncStorage.setItem('lastPage', pageName);
+      const serializedState = JSON.stringify(state);
+      await AsyncStorage.setItem('navigationState', serializedState);
     } catch (error) {
-        console.error('Errore nel salvataggio della pagina:', error);
+      console.log('Error saving navigation state:', error);
     }
-}
+  };
 
-const getLastPage = async () => {
+  // Function to load saved navigation state
+  const loadNavigationState = async () => {
     try {
-      const page = await AsyncStorage.getItem('lastPage');
-      return page || null;
+      const serializedState = await AsyncStorage.getItem('navigationState');
+      return serializedState ? JSON.parse(serializedState) : undefined;
     } catch (error) {
-      console.error('Errore nel recupero della pagina:', error);
-      return null;
+      console.log('Error loading navigation state:', error);
+      return undefined;
     }
   };
 
@@ -103,8 +104,8 @@ const getLastPage = async () => {
     isLoading,
     hasLocationPermission,
     showPermissionScreen,
-    initialRoute,
+    initialNavigationState,
     handleContinue,
-    saveLastPage,
+    saveNavigationState,
   };
 };

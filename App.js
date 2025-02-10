@@ -13,9 +13,9 @@ const App = () => {
     isLoading,
     hasLocationPermission,
     showPermissionScreen,
-    initialRoute,
+    initialNavigationState,
     handleContinue,
-    saveLastPage,
+    saveNavigationState,
   } = useAppViewModel();
 
   if (isLoading) {
@@ -62,13 +62,11 @@ const App = () => {
   return (
     <NavigationContainer
       onStateChange={async (state) => {
-        const currentRoute = state?.routes[state.index]?.name;
-        if(currentRoute) {
-          await saveLastPage(currentRoute)
-        }
+        await saveNavigationState(state);
       }}
+      initialState={initialNavigationState}
     >
-      <TabNavigator initialRoute={initialRoute} userLocation={userLocation} />
+      <TabNavigator userLocation={userLocation} />
     </NavigationContainer>
   );
 };
