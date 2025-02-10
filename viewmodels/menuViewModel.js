@@ -69,7 +69,7 @@ const useMenuViewModel = (menuId = null) => {
       const orderResponse = await buyMenu(menuId);
       console.log('Order response:', orderResponse);
       if (!orderResponse.success) {
-        return { success: false, title: 'Ordine già in corso', message: orderResponse.message || 'Errore nell\'effettuare l\'ordine. Riprova più tardi.' };
+        return orderResponse;
       }
 
       await saveLastOrder(menuDetails);

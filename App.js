@@ -1,77 +1,22 @@
 import React, { useState, useEffect } from 'react';
 import { Text, View, ActivityIndicator, StyleSheet } from 'react-native';
 import { Button } from 'react-native-paper';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { NavigationContainer } from '@react-navigation/native';
 import TabNavigator from './components/TabNavigator';
-import { requestLocationPermission, checkPermissionStatus, getCurrentPosition } from './models/locationModel';
-import { fetchSID } from './models/profileModel';
+import { useAppViewModel } from './viewmodels/appViewModel';
 
 const App = () => {
-  const [userLocation, setUserLocation] = useState(null);
-  const [error, setError] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [hasLocationPermission, setHasLocationPermission] = useState(null);
-  const [isFirstLaunch, setIsFirstLaunch] = useState(null);
-
-  const fetchLocation = async () => {
-    try {
-      const permissionGranted = await checkPermissionStatus();
-
-      if (!permissionGranted) {
-        await requestLocationPermission();
-      }
-
-      setHasLocationPermission(true);
-      const location = await getCurrentPosition();
-      setUserLocation(location);
-    } catch (err) {
-      setError(err.message || 'Errore durante la richiesta della posizione');
-      setHasLocationPermission(false);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const initializeUser = async () => {
-    try {
-      await fetchSID(); 
-    } catch (error) {
-      console.log('Errore durante l’inizializzazione dell’utente:', error);
-    }
-  };
-
-  useEffect(() => {
-    initializeUser();
-    const checkFirstLaunch = async () => {
-      try {
-        const hasLaunched = await AsyncStorage.getItem('hasLaunched');
-        if (hasLaunched === null) {
-          // Primo avvio
-          setIsFirstLaunch(true);
-          await AsyncStorage.setItem('hasLaunched', 'true');
-          setIsLoading(false);
-        } else {
-          // Non è il primo avvio: procedo subito con la richiesta della posizione
-          setIsFirstLaunch(false);
-          fetchLocation();
-        }
-      } catch (err) {
-        console.error('Errore nel controllo del primo avvio:', err);
-        setIsLoading(false);
-      }
-    };
-
-    checkFirstLaunch();
-  }, []);
-
-  // Funzione chiamata quando l'utente preme "Continua" nella schermata esplicativa
-  const handleContinue = () => {
-    setIsFirstLaunch(false);
-    setIsLoading(true);
-    fetchLocation();
-  };
+  const {
+    userLocation,
+    error,
+    isLoading,
+    hasLocationPermission,
+    showPermissionScreen,
+    initialRoute,
+    handleContinue,
+    saveLastPage,
+  } = useAppViewModel();
 
   if (isLoading) {
     return (
@@ -81,7 +26,7 @@ const App = () => {
     );
   }
 
-  if (isFirstLaunch) {
+  if (showPermissionScreen) {
     return (
       <View style={styles.centeredContainer}>
         <Icon name="location-on" size={100} color="#007AFF" style={styles.icon} />
@@ -115,8 +60,15 @@ const App = () => {
   }
 
   return (
-    <NavigationContainer>
-      <TabNavigator userLocation={userLocation} />
+    <NavigationContainer
+      onStateChange={async (state) => {
+        const currentRoute = state?.routes[state.index]?.name;
+        if(currentRoute) {
+          await saveLastPage(currentRoute)
+        }
+      }}
+    >
+      <TabNavigator initialRoute={initialRoute} userLocation={userLocation} />
     </NavigationContainer>
   );
 };
@@ -126,7 +78,7 @@ const styles = StyleSheet.create({
   icon: { marginBottom: 20, color: '#6554a4' },
   titleText: { fontSize: 26, fontWeight: '600', color: '#333', marginBottom: 10, textAlign: 'center' },
   descriptionText: { fontSize: 16, color: '#666', textAlign: 'center', marginBottom: 30, lineHeight: 24 },
-  button: { shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.3, shadowRadius: 3, elevation: 5 },
+  button: { backgroundColor: '#6554a4', marginTop: 20 },
   buttonText: { color: '#FFF', fontSize: 18, fontWeight: '500' },
   errorMessage: { fontSize: 18, color: '#D8000C', textAlign: 'center', marginBottom: 20 },
 });

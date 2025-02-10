@@ -74,7 +74,7 @@ export const fetchMenus = async () => {
 
     if (!response.ok) {
       const data = await response.json();
-      console.error('[fetchMenus] Error fetching menus:', data);
+      console.log('[fetchMenus] Error fetching menus:', data);
       throw new Error(data.error || 'Error fetching menus');
     }
 
@@ -89,7 +89,7 @@ export const fetchMenus = async () => {
         try {
           menuImage = await fetchMenuImage(menuId);
         } catch (error) {
-          console.error(`[fetchMenus] Failed to fetch image for menuId ${menuId}:`, error);
+          console.log(`[fetchMenus] Failed to fetch image for menuId ${menuId}:`, error);
         }
       }
 
@@ -106,7 +106,7 @@ export const fetchMenus = async () => {
     return updatedMenus;
 
   } catch (error) {
-    console.error('[fetchMenus] Error during menu fetch or image fetch:', error);
+    console.log('[fetchMenus] Error during menu fetch or image fetch:', error);
     throw error; // Re-throw to be handled by the calling function
   }
 };
@@ -137,7 +137,7 @@ export const fetchMenuDetails = async (menuId) => {
 
     if (!response.ok) {
       const data = await response.json();
-      console.error('[fetchMenuDetails] Errore durante il fetch dei dettagli:', data);
+      console.log('[fetchMenuDetails] Errore durante il fetch dei dettagli:', data);
       throw new Error(data.error || 'Errore durante il fetch dei dettagli del menu');
     }
 
@@ -149,7 +149,7 @@ export const fetchMenuDetails = async (menuId) => {
     try {
       menuImage = await fetchMenuImage(menuId); // Fetch image for the menu
     } catch (error) {
-      console.error(`[fetchMenuDetails] Failed to fetch image for menuId ${menuId}:`, error);
+      console.log(`[fetchMenuDetails] Failed to fetch image for menuId ${menuId}:`, error);
     }
 
     // Add the image to the menu details
@@ -160,7 +160,7 @@ export const fetchMenuDetails = async (menuId) => {
 
     return updatedMenuDetails;
   } catch (error) {
-    console.error('[fetchMenuDetails] Errore durante il fetch dei dettagli del menu:', error);
+    console.log('[fetchMenuDetails] Errore durante il fetch dei dettagli del menu:', error);
     throw error; // Re-throw to be handled by the calling function
   }
 };

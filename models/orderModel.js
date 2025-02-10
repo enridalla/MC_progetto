@@ -77,10 +77,14 @@ export const buyMenu = async (menuId) => {
     if (!response.ok) {
       const data = await response.json();
       console.log('[buyMenu] Error during menu purchase:', data);
-      if (data.message == "User already has an active order") {
-        return { success: false, message: 'Hai già un ordine attivo. Attendi l\'ordine corrente prima di acquistare un nuovo menù.' };
+      switch (data.message){
+      case "User already has an active order": 
+        return { success: false, title: 'Ordine già in corso', message: 'Hai già un ordine attivo. Attendi l\'ordine corrente prima di acquistare un nuovo menù.' };
+      case "Invalid card":
+        return { success: false, title: 'Aggiorna i dati della carta', message: 'Carta non valida. Aggiorna correttamente i dati della carta per procedere con l\'acquisto.' };
+      default:
+        return { success: false, title: 'Errore', message: data.message || 'Errore durante l\'acquisto del menù' };
       }
-      return { success: false, message: data.message || 'Errore durante l\'acquisto del menù' };
     }
   
     const data = await response.json();
